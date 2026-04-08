@@ -22,7 +22,7 @@ export default function Navbar() {
           <Link to="/services" className="hover:text-green-400">Services</Link>
           <Link to="/solutions" className="hover:text-green-400">Solutions</Link>
           <Link to="/blog" className="hover:text-green-400">Blog</Link>
-          <Link to="/about" className="hover:text-green-400">About</Link>
+        {/*  <Link to="/about" className="hover:text-green-400">About</Link> */}
 
           <Link
             to="/about"
