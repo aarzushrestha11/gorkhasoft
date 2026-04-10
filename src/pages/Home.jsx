@@ -43,6 +43,9 @@ import process2Img from "../assets/process2.avif";
 import process3Img from "../assets/process3.jpeg";
 import process4Img from "../assets/process4.jpg";
 
+// Chairperson photo (replace with your actual image)
+import chairpersonPhoto from "../assets/chairperson.webp"; // <-- Add your image here
+
 const carousels = [
   [
     { img: solution1, title: "Project Management" },
@@ -650,6 +653,95 @@ export default function Home() {
           >
             View All Blog Posts <ArrowRight size={18} />
           </button>
+        </div>
+      </section>
+
+      {/* LEADERSHIP MESSAGE SECTION - UPDATED WITH PHOTO LEFT, TEXT RIGHT */}
+      <section className="py-24 bg-gradient-to-br from-slate-50 to-stone-100">
+        <div className="max-w-6xl mx-auto px-6 sm:px-8">
+          <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border border-stone-200 transition-all duration-300 hover:shadow-xl">
+            {/* Top accent bar */}
+            <div className="h-2 bg-gradient-to-r from-green-600 via-green-100 to-green-600"></div>
+            
+            <div className="grid md:grid-cols-2 gap-8 p-6 sm:p-12">
+              {/* Left Column - Chairperson Photo */}
+              <div className="flex flex-col items-center justify-center">
+                <div className="relative w-full max-w-sm mx-auto">
+                  <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/20 to-red-500/20 rounded-2xl blur-xl"></div>
+                  <div className="relative bg-white p-2 rounded-2xl shadow-xl">
+                    <img 
+                      src={chairpersonPhoto} 
+                      alt="Chairperson - Lhakpa Norbu Sherpa"
+                      className="w-full h-auto rounded-xl object-cover aspect-[3/4]"
+                      onError={(e) => {
+                        e.target.src = "https://placehold.co/600x800/2c3e50/white?text=Chairperson";
+                      }}
+                    />
+                  </div>
+                  {/* Optional decorative element */}
+                  <div className="absolute -bottom-3 -right-3 bg-amber-100 rounded-full p-2 shadow-md">
+                    <span className="text-2xl">⛰️</span>
+                  </div>
+                </div>
+                <div className="mt-6 text-center">
+                  <h3 className="text-2xl font-bold text-stone-800">Lhakpa Norbu Sherpa</h3>
+                  <p className="text-amber-700 font-medium">Chairperson, Sherpa Sewa Kendra</p>
+                  <div className="flex justify-center gap-2 mt-3">
+                    <span className="inline-block w-2 h-2 bg-amber-500 rounded-full"></span>
+                    <span className="inline-block w-2 h-2 bg-red-500 rounded-full"></span>
+                    <span className="inline-block w-2 h-2 bg-amber-500 rounded-full"></span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column - Message */}
+              <div className="flex flex-col justify-center">
+                <div className="mb-4">
+                  <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-amber-50 rounded-full border border-amber-200">
+                    <span className="text-amber-700 text-sm font-semibold tracking-wider">🏔️ LEADERSHIP MESSAGE</span>
+                  </div>
+                  <h2 className="mt-4 text-3xl sm:text-4xl font-bold text-stone-800">
+                    Message from Our Chairperson
+                  </h2>
+                  <div className="mt-2 w-16 h-1 bg-amber-500 rounded-full"></div>
+                </div>
+
+                <div className="space-y-5 text-stone-700 text-base sm:text-lg leading-relaxed">
+                  <p>
+                    Dear friends and members of the Sherpa community.
+                  </p>
+                  <p>
+                    It is with great pride and humility that I address you as the Chairperson of Sherpa Sewa Kendra. 
+                    Our organization stands as a testament to the strength, resilience, and unity of our community.
+                  </p>
+                  <p>
+                    In today's rapidly changing world, we face both challenges and opportunities. 
+                    Our mission remains clear: to preserve our rich cultural heritage while empowering our community 
+                    through education, welfare, and sustainable development.
+                  </p>
+                  <p>
+                    Together, we will continue to build a brighter future for the Sherpa community — one that honors 
+                    our past, serves our present, and secures our future. I invite each of you to join us in this noble journey.
+                  </p>
+                  <p className="italic text-amber-700 border-l-4 border-amber-500 pl-4">
+                    With warm regards and best wishes for our community's continued prosperity.
+                  </p>
+                </div>
+
+                {/* Organization Motto */}
+                <div className="mt-8 flex flex-wrap items-center gap-4 text-stone-400 text-sm">
+                  <div className="flex items-center gap-2 bg-stone-50 px-4 py-2 rounded-full">
+                    <span className="text-base">🏔️</span>
+                    <span>Preserving heritage · Empowering futures</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-stone-400">
+                    <span>Unity • Resilience • Service</span>
+                    <span className="text-xs">Est. 2010</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
