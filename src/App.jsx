@@ -3,9 +3,10 @@ import Navbar from "./Components/Navbar";
 
 import Home from "./pages/Home";
 import Services from "./pages/Services";
-import Solutions from "./pages/Solutions";
+import Portfolio from "./pages/Portfolio";
 import Blog from "./pages/Blog";
-import About from "./pages/About";
+
+import Contact from "./pages/Contact";
 import "./index.css"
 export default function App() {
   return (
@@ -15,9 +16,10 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/services" element={<Services />} />
-        <Route path="/solutions" element={<Solutions />} />
+       
         <Route path="/blog" element={<Blog />} />
-        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/portfolio" element={<Portfolio />} />
       </Routes>
     </BrowserRouter>
   );
