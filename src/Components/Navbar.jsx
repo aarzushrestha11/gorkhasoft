@@ -22,7 +22,8 @@ export default function Navbar() {
           <Link to="/services" className="hover:text-green-400">Services</Link>
           <Link to="/solutions" className="hover:text-green-400">Solutions</Link>
           <Link to="/blog" className="hover:text-green-400">Blog</Link>
-          <Link to="/about" className="hover:text-green-400">About</Link>
+         <Link to="/contact" className="hover:text-green-400">Contact</Link> 
+          <Link to="/portfolio" className="hover:text-green-400">Portfolio</Link> 
 
           <Link
             to="/about"
@@ -45,7 +46,7 @@ export default function Navbar() {
           <Link onClick={close} to="/services">Services</Link>
           <Link onClick={close} to="/solutions">Solutions</Link>
           <Link onClick={close} to="/blog">Blog</Link>
-          <Link onClick={close} to="/about">About</Link>
+          <Link onClick={close} to="/about">Contact</Link>
 
           <Link
             onClick={close}
