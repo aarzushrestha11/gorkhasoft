@@ -1,684 +1,622 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
-  Code,
-  Globe,
-  Headphones,
-  CheckCircle,
-  ArrowRight,
-  ChevronLeft,
-  ChevronRight,
-  Smartphone,
-  Cloud,
-  Shield,
-  Database,
-  BarChart,
-  PenTool,
-  Server,
+  Code, Globe, Headphones, ArrowRight,
+  ChevronLeft, ChevronRight, Smartphone,
+  BarChart, PenTool, Server, ExternalLink,
+  Calendar, User,
 } from "lucide-react";
-import ctaBg from "../assets/cta-bg.png";
-import Navbar from "../Components/Navbar";
+import { Link, useNavigate } from "react-router-dom";
+import API from "../api/axios";
 import heroBg from "../assets/hero-bg.png";
-import solution1 from "../assets/solution1.webp";
-import solution2 from "../assets/solution2.png";
-import solution3 from "../assets/solution3.png";
-import solution from "../assets/solution.jpg";
-import solution5 from "../assets/solution5.jpg";
-import solution6 from "../assets/solution6.png";
-import blog1 from "../assets/blog1.avif";
-import blog2 from "../assets/blog2.jpg";
-import blog3 from "../assets/blog3.jpg";
 import Footer from "../Components/Footer";
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import chairpersonPhoto from "../assets/chairperson.webp";
 
-// Portfolio images for carousel
-import portfolioImg from "../assets/portfolioImg.jpeg";
-import portfolioImg2 from "../assets/portfolioImg2.webp";
-import portfolioImg3 from "../assets/portfolioImg3.png";
-import portfolioImg4 from "../assets/portfolioImg4.jpeg";
-import portfolioImg5 from "../assets/portfolioImg5.webp";
+// ── STATIC DATA ───────────────────────────────────────────────────
 
-// Workflow process images
-import process1Img from "../assets/process1.jpeg";
-import process2Img from "../assets/process2.avif";
-import process3Img from "../assets/process3.jpeg";
-import process4Img from "../assets/process4.jpg";
-
-// Chairperson photo (replace with your actual image)
-import chairpersonPhoto from "../assets/chairperson.webp"; // <-- Add your image here
-
-const carousels = [
-  [
-    { img: solution1, title: "Project Management" },
-    { img: solution2, title: "Cloud Solutions" },
-  ],
-  [
-    { img: solution3, title: "Automation Tools" },
-    { img: solution, title: "CRM Systems" },
-  ],
-  [
-    { img: solution5, title: "AI Tools" },
-    { img: solution6, title: "Business Analytics" },
-  ],
-];
-
-// Portfolio Carousel Items
-const portfolioCarouselItems = [
-  {
-    img: portfolioImg,
-    title: "E-Commerce Platform",
-    category: "Web Development",
-    description: "A fully responsive e-commerce solution with payment integration, inventory management, and real-time analytics.",
-  },
-  {
-    img: portfolioImg2,
-    title: "Healthcare App",
-    category: "Mobile App",
-    description: "Patient management system with real-time analytics, appointment scheduling, and telemedicine features.",
-  },
-  {
-    img: portfolioImg3,
-    title: "Dashboard UI/UX",
-    category: "UI/UX Design",
-    description: "Modern dashboard design for data visualization with interactive charts and real-time updates.",
-  },
-  {
-    img: portfolioImg4,
-    title: "Cloud Migration",
-    category: "Cloud Solutions",
-    description: "Seamless migration to AWS cloud infrastructure with zero downtime and enhanced security.",
-  },
-  {
-    img: portfolioImg5,
-    title: "AI Chatbot",
-    category: "Artificial Intelligence",
-    description: "Intelligent customer support automation tool with natural language processing and 24/7 availability.",
-  },
-];
-
-// Technology items with respective logos
-const techItems = [
-  { icon: "fa-brands fa-react", name: "React.js", desc: "Frontend ecosystem", color: "#61DAFB" },
-  { icon: "fa-brands fa-vuejs", name: "Vue.js", desc: "Reactive UIs", color: "#42B883" },
-  { icon: "fa-brands fa-angular", name: "Angular", desc: "Enterprise ready", color: "#DD0031" },
-  { icon: "fa-brands fa-python", name: "Python", desc: "Django, FastAPI", color: "#3776AB" },
-  { icon: "fa-brands fa-node-js", name: "Node.js", desc: "Backend JS", color: "#339933" },
-  { icon: "fa-brands fa-laravel", name: "Laravel", desc: "PHP artisan", color: "#FF2D20" },
-  { icon: "fa-brands fa-java", name: "Java", desc: "Spring Boot", color: "#007396" },
-  { icon: "fa-brands fa-js", name: "JavaScript", desc: "Core language", color: "#F7DF1E" },
-  { icon: "fa-brands fa-php", name: "PHP", desc: "Server-side scripting", color: "#777BB4" },
-  { icon: "fa-brands fa-golang", name: "Go", desc: "High performance", color: "#00ADD8" },
-  { icon: "fa-solid fa-cloud", name: "AWS Cloud", desc: "Scalable infra", color: "#FF9900" },
-  { icon: "fa-solid fa-database", name: "PostgreSQL", desc: "Reliable DB", color: "#4169E1" },
-  { icon: "fa-brands fa-figma", name: "Figma", desc: "UI/UX design", color: "#F24E1E" },
-  { icon: "fa-brands fa-docker", name: "Docker", desc: "Containerization", color: "#2496ED" },
-  { icon: "fa-brands fa-git-alt", name: "Git", desc: "Version control", color: "#F05032" },
-  { icon: "fa-solid fa-code", name: "TypeScript", desc: "Type-safe JS", color: "#3178C6" },
-];
-
-// Service Portfolio Items
 const servicePortfolioItems = [
-  { icon: <Code size={32} />, title: "Custom Software Development", desc: "Tailored solutions built specifically for your business needs and workflows." },
-  { icon: <Smartphone size={32} />, title: "Mobile App Development", desc: "Native and cross-platform mobile apps for iOS and Android platforms." },
-  { icon: <Globe size={32} />, title: "Web Development", desc: "Responsive, scalable web applications using modern frameworks." },
-  { icon: <Cloud size={32} />, title: "Cloud Solutions", desc: "AWS, Azure, and Google Cloud integration and migration services." },
-  { icon: <Shield size={32} />, title: "Cybersecurity", desc: "Advanced security audits, penetration testing, and data protection." },
-  { icon: <Database size={32} />, title: "Data Analytics", desc: "Business intelligence, data warehousing, and predictive analytics." },
-  { icon: <BarChart size={32} />, title: "Digital Marketing", desc: "SEO, social media, and data-driven marketing strategies." },
-  { icon: <PenTool size={32} />, title: "UI/UX Design", desc: "User-centered design, wireframing, prototyping, and usability testing." },
-  { icon: <Server size={32} />, title: "DevOps Services", desc: "CI/CD pipelines, containerization, and infrastructure automation." },
+  { icon: <Globe size={28} />, title: "Website Design & Development", desc: "Stunning, conversion-optimized websites built with modern frameworks and best practices." },
+  { icon: <Code size={28} />, title: "E-commerce Solutions", desc: "Robust online stores with secure payment gateways, inventory management, and analytics." },
+  { icon: <Server size={28} />, title: "Content Management Systems", desc: "Scalable CMS platforms like WordPress, enabling clients to manage and update their content." },
+  { icon: <Smartphone size={28} />, title: "Mobile Responsive Design", desc: "Flawless experiences across all screen sizes, providing a seamless multi-device experience." },
+  { icon: <BarChart size={28} />, title: "Search Engine Optimization", desc: "Data-driven SEO strategies that improve rankings, drive organic traffic, and boost conversions." },
+  { icon: <Headphones size={28} />, title: "Website Maintenance & Support", desc: "Proactive monitoring, updates, security patches, and technical support for peak performance." },
+  { icon: <PenTool size={28} />, title: "UI/UX Design", desc: "User-centered design, wireframing, prototyping, and usability testing for delightful interfaces." },
+  { icon: <Code size={28} />, title: "Custom Web Solutions", desc: "Bespoke applications tailored precisely to your business logic, workflows, and integrations." },
+  { icon: <PenTool size={28} />, title: "Graphic Design", desc: "Compelling visual identities, marketing collateral, and brand assets that resonate and convert." },
 ];
 
-// Workflow Process Items with images
-const workflowProcesses = [
-  { 
-    number: "01", 
-    name: "Gathering Information", 
-    description: "We start by understanding your business goals, requirements, and target audience.",
-    image: process1Img,
-    icon: "fa-solid fa-magnifying-glass"
-  },
-  { 
-    number: "02", 
-    name: "Design & Development", 
-    description: "Our team designs and develops your solution using cutting-edge technologies.",
-    image: process2Img,
-    icon: "fa-solid fa-code"
-  },
-  { 
-    number: "03", 
-    name: "Customer Satisfaction", 
-    description: "We ensure every aspect meets your expectations through rigorous testing and feedback.",
-    image: process3Img,
-    icon: "fa-solid fa-face-smile"
-  },
-  { 
-    number: "04", 
-    name: "Deployment", 
-    description: "Smooth launch, deployment, and ongoing support for long-term success.",
-    image: process4Img,
-    icon: "fa-solid fa-rocket"
-  },
+const procedures = [
+  { number: "01", icon: "fa-solid fa-magnifying-glass", name: "Gathering Information", desc: "We deeply understand your goals, audience, and requirements before a single line is written." },
+  { number: "02", icon: "fa-solid fa-code",             name: "Design & Development",  desc: "Our team designs and builds your solution with cutting-edge technology and clean architecture." },
+  { number: "03", icon: "fa-solid fa-face-smile",       name: "Customer Satisfaction", desc: "Rigorous QA and client feedback loops ensure every detail meets and exceeds your expectations." },
+  { number: "04", icon: "fa-solid fa-rocket",           name: "Deployment",            desc: "Smooth launch, zero-downtime deployment, and ongoing support for long-term success." },
 ];
 
-// Blog posts data
-const blogPosts = [
-  {
-    id: 1,
-    img: blog1,
-    tag: "Technology",
-    title: "Top 5 Trends in Software Development for 2024",
-    excerpt: "Discover the latest trends shaping the software development industry in 2024.",
-  },
-  {
-    id: 2,
-    img: blog2,
-    tag: "Cloud",
-    title: "How Cloud Computing Can Benefit Your Business",
-    excerpt: "Learn how cloud computing can transform your business operations and reduce costs.",
-  },
-  {
-    id: 3,
-    img: blog3,
-    tag: "AI",
-    title: "Announcing Our New Process Management Tool",
-    excerpt: "Introducing our latest innovation in process management and automation.",
-  },
+const techItems = [
+  { icon: "fa-brands fa-js",        name: "JavaScript", color: "#F7DF1E" },
+  { icon: "fa-brands fa-python",    name: "Django",     color: "#0C4B33" },
+  { icon: "fa-brands fa-wordpress", name: "WordPress",  color: "#21759B" },
+  { icon: "fa-brands fa-react",     name: "React",      color: "#61DAFB" },
+  { icon: "fa-brands fa-java",      name: "Java",       color: "#007396" },
+  { icon: "fa-solid fa-database",   name: "Data",       color: "#4169E1" },
+  { icon: "fa-brands fa-bootstrap", name: "Bootstrap",  color: "#7952B3" },
+  { icon: "fa-brands fa-vuejs",     name: "Vue.js",     color: "#42B883" },
+  { icon: "fa-brands fa-node-js",   name: "Node.js",    color: "#339933" },
+  { icon: "fa-brands fa-docker",    name: "Docker",     color: "#2496ED" },
+  { icon: "fa-brands fa-figma",     name: "Figma",      color: "#F24E1E" },
+  { icon: "fa-brands fa-laravel",   name: "Laravel",    color: "#FF2D20" },
 ];
 
-export default function Home() {
-  const [indexes, setIndexes] = useState([0, 0, 0]);
-  const [portfolioIndex, setPortfolioIndex] = useState(0);
+const calendarDays = [
+  [null, null, 1, 2, 3, 4, 5],
+  [6, 7, 8, 9, 10, 11, 12],
+  [13, 14, 15, 16, 17, 18, 19],
+  [20, 21, 22, 23, 24, 25, 26],
+  [27, 28, 29, 30, null, null, null],
+];
 
-  const next = (i) => {
-    const copy = [...indexes];
-    copy[i] = (copy[i] + 1) % carousels[i].length;
-    setIndexes(copy);
-  };
+// ── HELPERS ───────────────────────────────────────────────────────
 
-  const prev = (i) => {
-    const copy = [...indexes];
-    copy[i] = (copy[i] - 1 + carousels[i].length) % carousels[i].length;
-    setIndexes(copy);
-  };
+function truncateWords(text, max = 20) {
+  if (!text) return "";
+  const words = text.trim().split(/\s+/);
+  return words.length <= max ? text : words.slice(0, max).join(" ") + "…";
+}
 
-  const nextPortfolio = () => {
-    setPortfolioIndex((prevIndex) => (prevIndex + 1) % portfolioCarouselItems.length);
-  };
+function formatDate(str) {
+  if (!str) return "";
+  return new Date(str).toLocaleDateString("en-US", {
+    month: "short", day: "2-digit", year: "numeric",
+  });
+}
 
-  const prevPortfolio = () => {
-    setPortfolioIndex((prevIndex) => (prevIndex - 1 + portfolioCarouselItems.length) % portfolioCarouselItems.length);
-  };
+// ── TECH SLIDER ───────────────────────────────────────────────────
 
-  const handleReadMore = () => {
-    window.location.href = '/blog';
-  };
+function TechSlider() {
+  const doubled  = [...techItems, ...techItems];
+  const trackRef = useRef(null);
+  const animRef  = useRef(null);
+  const posRef   = useRef(0);
+  const SPEED    = 0.5;
+
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+    const singleSetWidth = track.scrollWidth / 2;
+    const step = () => {
+      posRef.current += SPEED;
+      if (posRef.current >= singleSetWidth) posRef.current = 0;
+      track.style.transform = `translateX(-${posRef.current}px)`;
+      animRef.current = requestAnimationFrame(step);
+    };
+    animRef.current = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(animRef.current);
+  }, []);
 
   return (
-    <div className="bg-slate-50 text-gray-800">
-      <Navbar />
+    <div
+      className="overflow-hidden w-full"
+      style={{ maskImage: "linear-gradient(to right, transparent, black 8%, black 92%, transparent)" }}
+    >
+      <div ref={trackRef} className="flex gap-6 w-max">
+        {doubled.map((tech, i) => (
+          <div key={i} className="flex flex-col items-center gap-2 group cursor-pointer flex-shrink-0">
+            <div className="w-16 h-16 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center group-hover:shadow-lg group-hover:-translate-y-1 transition-all duration-300">
+              <i className={`${tech.icon} text-3xl`} style={{ color: tech.color }} />
+            </div>
+            <span className="text-xs text-gray-600 font-medium">{tech.name}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
-      {/* HERO */}
+// ── SKELETON LOADERS ──────────────────────────────────────────────
+
+function PortfolioSkeleton() {
+  return (
+    <div className="bg-white rounded-xl overflow-hidden shadow-md animate-pulse">
+      <div className="h-48 bg-gray-200" />
+      <div className="p-5 space-y-3">
+        <div className="h-4 bg-gray-200 rounded w-3/4" />
+        <div className="h-3 bg-gray-100 rounded w-full" />
+        <div className="h-3 bg-gray-100 rounded w-5/6" />
+        <div className="flex gap-2 mt-2">
+          <div className="h-5 bg-gray-100 rounded-full w-14" />
+          <div className="h-5 bg-gray-100 rounded-full w-16" />
+        </div>
+        <div className="h-8 bg-gray-100 rounded-lg w-full mt-2" />
+      </div>
+    </div>
+  );
+}
+
+function BlogSkeleton() {
+  return (
+    <div className="bg-white rounded-xl overflow-hidden shadow-sm animate-pulse">
+      <div className="h-44 bg-gray-200" />
+      <div className="p-4 space-y-2">
+        <div className="h-3 bg-gray-100 rounded w-1/3" />
+        <div className="h-4 bg-gray-200 rounded w-full" />
+        <div className="h-3 bg-gray-100 rounded w-4/5" />
+        <div className="h-3 bg-gray-100 rounded w-1/4 mt-2" />
+      </div>
+    </div>
+  );
+}
+
+// ── MAIN COMPONENT ────────────────────────────────────────────────
+
+export default function Home() {
+  const navigate = useNavigate();
+
+  const [portfolioPage, setPortfolioPage] = useState(0);
+  const itemsPerPage = 3;
+
+  // Portfolio API state
+  const [projects,         setProjects]         = useState([]);
+  const [portfolioLoading, setPortfolioLoading] = useState(true);
+  const [portfolioError,   setPortfolioError]   = useState(null);
+
+  // Blog API state
+  const [blogs,       setBlogs]       = useState([]);
+  const [blogLoading, setBlogLoading] = useState(true);
+  const [blogError,   setBlogError]   = useState(null);
+
+  // ── Fetch portfolio — mirrors Portfolio.jsx exactly
+  useEffect(() => {
+    const fetchPortfolio = async () => {
+      try {
+        setPortfolioLoading(true);
+        const res  = await API.get("portfolio/");
+        const data = Array.isArray(res.data) ? res.data : res.data?.results || [];
+        setProjects(data);
+        setPortfolioError(null);
+      } catch (err) {
+        console.log(err);
+        setPortfolioError("Failed to load portfolio data.");
+      } finally {
+        setPortfolioLoading(false);
+      }
+    };
+    fetchPortfolio();
+  }, []);
+
+  // ── Fetch blogs — mirrors Blog.jsx exactly
+  useEffect(() => {
+    const fetchBlogs = async () => {
+      try {
+        const res  = await API.get("blogs/");
+        const data = Array.isArray(res.data) ? res.data : res.data?.results || [];
+        setBlogs(data);
+        setBlogError(null);
+      } catch (err) {
+        console.log(err);
+        setBlogError("Failed to load blogs.");
+      } finally {
+        setBlogLoading(false);
+      }
+    };
+    fetchBlogs();
+  }, []);
+
+  // Reset pagination when data refreshes
+  useEffect(() => setPortfolioPage(0), [projects]);
+
+  const totalPages      = Math.ceil(projects.length / itemsPerPage);
+  const visibleProjects = projects.slice(
+    portfolioPage * itemsPerPage,
+    portfolioPage * itemsPerPage + itemsPerPage
+  );
+
+  return (
+    <div className="bg-white text-gray-800 font-sans">
+
+      {/* ── HERO ──────────────────────────────────────────────── */}
       <section
-        className="relative bg-cover bg-center h-[85vh] flex items-center"
+        className="relative bg-cover bg-center min-h-[90vh] flex items-center"
         style={{ backgroundImage: `url(${heroBg})` }}
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-green-900/90 to-green-600/60"></div>
-        <div className="relative max-w-xl mx-[22rem] px-6 text-white">
-          <h1 className="text-5xl md:text-6xl font-bold">
-            Future-Forward <br /> Technology for Success
-          </h1>
-          <p className="mt-6 max-w-xl text-lg text-green-100">
-            Innovative solutions designed to boost your business to new heights.
-          </p>
-          <button className="mt-8 bg-green-500 hover:bg-green-600 transition px-8 py-4 rounded-xl text-white font-semibold inline-flex items-center gap-3 shadow-xl">
-            Get Started <ArrowRight />
-          </button>
-        </div>
-      </section>
-
-      {/* SERVICE PORTFOLIO SECTION */}
-      <section id="services-portfolio">
-        <section className="py-24 bg-gradient-to-br from-white to-green-50">
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="text-center mb-16">
-              <h5 className="text-green-600 font-semibold text-lg mb-3 tracking-wide">Globally renowned & trusted</h5>
-              <div className="title-main">
-                <h2 className="text-4xl md:text-5xl font-bold text-gray-800">
-                  Service <span className="text-[#0f3b2c]">Portfolio</span>
-                </h2>
-              </div>
-              <div className="w-24 h-1 bg-green-500 mx-auto mt-4 rounded-full"></div>
-              <p className="text-gray-600 mt-6 max-w-2xl mx-auto">
-                Comprehensive solutions tailored to meet your unique business challenges and drive digital transformation.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {servicePortfolioItems.map((service, idx) => (
-                <div
-                  key={idx}
-                  className="bg-white rounded-2xl p-6 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group border border-gray-100"
-                >
-                  <div className="text-green-600 mb-4 group-hover:text-green-700 transition-colors">
-                    {service.icon}
-                  </div>
-                  <h3 className="text-xl font-semibold text-gray-800 mb-2 group-hover:text-[#0f3b2c] transition-colors">
-                    {service.title}
-                  </h3>
-                  <p className="text-gray-500 text-sm leading-relaxed">
-                    {service.desc}
-                  </p>
-                </div>
-              ))}
-            </div>
-
-            <div className="text-center mt-12">
-              <button className="bg-[#0f3b2c] hover:bg-[#1a4d3a] text-white font-semibold px-8 py-3 rounded-full transition-all duration-300 inline-flex items-center gap-2 shadow-md hover:shadow-xl">
-                View All Services <ArrowRight size={18} />
-              </button>
-            </div>
-          </div>
-        </section>
-      </section>
-
-      {/* PORTFOLIO SECTION WITH ENLARGED SLIDING CAROUSEL */}
-      <section className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-800">
-              Our <span className="text-[#0f3b2c]">Work Portfolio</span>
-            </h2>
-            <div className="w-24 h-1 bg-green-500 mx-auto mt-4 rounded-full"></div>
-            <p className="text-gray-600 mt-6 max-w-2xl mx-auto">
-              Explore our creative projects and digital solutions crafted with precision and passion.
+        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent" />
+        <div className="relative max-w-7xl mx-auto px-6 py-20 grid md:grid-cols-2 gap-12 items-center w-full">
+          <div className="text-white">
+            <p className="text-green-400 text-sm font-semibold tracking-widest uppercase mb-4">Welcome to</p>
+            <h1 className="text-5xl md:text-6xl font-extrabold leading-tight">
+              <span className="text-green-400">Gorkha Soft,</span>
+              <br />where quality and
+              <br />innovation collide
+            </h1>
+            <p className="mt-6 text-gray-300 text-base leading-relaxed max-w-md">
+              Our passion is creating innovative digital solutions that enable companies to prosper in the digital era. Our team of skilled technologists and creative thinkers brings your digital vision to life.
             </p>
-          </div>
-
-          {/* Enlarged Sliding Carousel */}
-          <div className="relative max-w-6xl mx-auto">
-            <div className="overflow-hidden rounded-2xl shadow-2xl">
-              <div 
-                className="flex transition-transform duration-500 ease-in-out"
-                style={{ transform: `translateX(-${portfolioIndex * 100}%)` }}
-              >
-                {portfolioCarouselItems.map((item, idx) => (
-                  <div key={idx} className="w-full flex-shrink-0">
-                    <div className="relative">
-                      <img 
-                        src={item.img} 
-                        alt={item.title}
-                        className="w-full h-[500px] object-cover"
-                        onError={(e) => {
-                          e.target.src = `https://placehold.co/1600x500/0f3b2c/white?text=${item.title}`;
-                        }}
-                      />
-                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-8 text-white">
-                        <span className="text-sm bg-green-500 px-4 py-1.5 rounded-full inline-block mb-3 font-semibold">
-                          {item.category}
-                        </span>
-                        <h3 className="text-3xl font-bold mb-2">{item.title}</h3>
-                        <p className="text-gray-200 text-lg max-w-2xl">{item.description}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+            <div className="mt-8 flex gap-4 flex-wrap">
+              <Link to="/services" className="bg-green-500 hover:bg-green-600 px-7 py-3 rounded-lg font-semibold inline-flex items-center gap-2 shadow-lg transition">
+                Explore Services <ArrowRight size={18} />
+              </Link>
+              <Link to="/portfolio" className="border border-white/40 hover:border-white text-white px-7 py-3 rounded-lg font-semibold transition">
+                View Portfolio
+              </Link>
             </div>
-
-            {/* Navigation Arrows */}
-            <button
-              onClick={prevPortfolio}
-              className="absolute left-6 top-1/2 -translate-y-1/2 bg-white/95 hover:bg-white p-4 rounded-full shadow-xl transition-all duration-300 hover:scale-110"
-            >
-              <ChevronLeft size={28} className="text-[#0f3b2c]" />
-            </button>
-            <button
-              onClick={nextPortfolio}
-              className="absolute right-6 top-1/2 -translate-y-1/2 bg-white/95 hover:bg-white p-4 rounded-full shadow-xl transition-all duration-300 hover:scale-110"
-            >
-              <ChevronRight size={28} className="text-[#0f3b2c]" />
-            </button>
-
-            {/* Dots Indicator */}
-            <div className="flex justify-center gap-4 mt-8">
-              {portfolioCarouselItems.map((_, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setPortfolioIndex(idx)}
-                  className={`transition-all duration-300 rounded-full ${
-                    portfolioIndex === idx 
-                      ? "bg-green-500 w-8 h-3" 
-                      : "bg-gray-300 hover:bg-gray-400 w-3 h-3"
-                  }`}
-                />
-              ))}
-            </div>
-          </div>
-
-          <div className="text-center mt-12">
-            <a href="/portfolio" className="inline-flex items-center gap-2 bg-[#0f3b2c] hover:bg-[#0a2a1f] text-white font-semibold px-8 py-3 rounded-full transition-all duration-300 shadow-md hover:shadow-xl">
-              View All Projects <ArrowRight size={18} />
-            </a>
           </div>
         </div>
       </section>
 
-      {/* SERVICES SECTION (Original 3 Services) */}
-      <section className="py-24 max-w-7xl mx-auto px-6">
-        <h2 className="text-4xl font-bold text-center mb-6">Core Services</h2>
-        <div className="grid md:grid-cols-3 gap-10">
-          {[
-            {
-              icon: <Code size={36} />,
-              title: "Custom Software Development",
-              desc: "Tailored software solutions crafted to meet your specific business needs.",
-            },
-            {
-              icon: <Globe size={36} />,
-              title: "Web & Mobile App Development",
-              desc: "High-performance web and mobile apps designed to engage your audience.",
-            },
-            {
-              icon: <Headphones size={36} />,
-              title: "IT Consulting & Support",
-              desc: "Expert IT consulting and support to ensure your technology runs smoothly.",
-            },
-          ].map((s, i) => (
-            <div key={i} className="bg-white p-10 rounded-2xl shadow-xl hover:-translate-y-2 transition text-center">
-              <div className="text-green-500 mb-5 flex justify-center">
-                {s.icon}
-              </div>
-              <h3 className="text-xl font-semibold mb-3">{s.title}</h3>
-              <p className="text-gray-600 text-sm">{s.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* WORKFLOW PROCESS SECTION */}
-      <section className="workflow py-24 bg-white">
+      {/* ── SERVICE PORTFOLIO ─────────────────────────────────── */}
+      <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="flex flex-wrap mb-16">
-            <div className="md:w-1/2 w-full">
-              <div className="title-left">
-                <h2 className="text-4xl md:text-5xl font-bold text-gray-800 relative inline-block after:content-[''] after:absolute after:bottom-[-15px] after:left-0 after:w-20 after:h-1 after:bg-green-500 after:rounded-full pb-4">
-                  Our Workflow <span className="text-[#0f3b2c]">Process</span>
-                </h2>
-              </div>
-            </div>
+          <div className="text-center mb-14">
+            <h2 className="text-4xl font-bold text-gray-800">Service <span className="text-green-600">Portfolio</span></h2>
+            <p className="text-gray-500 mt-3 max-w-xl mx-auto text-sm">Comprehensive digital solutions tailored to your business needs</p>
+            <div className="w-16 h-1 bg-green-500 mx-auto mt-4 rounded-full" />
           </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {workflowProcesses.map((process, idx) => (
-              <div key={idx} className="process group text-center relative">
-                <div className="img__container relative mb-6">
-                  <div className="relative rounded-2xl overflow-hidden shadow-lg group-hover:shadow-2xl transition-all duration-300">
-                    <img 
-                      src={process.image} 
-                      alt={process.name}
-                      className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
-                      onError={(e) => {
-                        e.target.src = `https://placehold.co/400x300/0f3b2c/white?text=${process.number}+${process.name.split(' ')[0]}`;
-                      }}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
-                    <div className="absolute bottom-4 left-4">
-                      <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
-                        <span className="text-white font-bold text-xl">{process.number}</span>
-                      </div>
-                    </div>
-                    <div className="absolute top-4 right-4 bg-white/90 rounded-full w-10 h-10 flex items-center justify-center shadow-md">
-                      <i className={`${process.icon} text-green-600 text-lg`}></i>
-                    </div>
-                  </div>
-                  
-                  {idx < workflowProcesses.length - 1 && (
-                    <div className="hidden lg:block absolute top-24 -right-4 w-8 h-0.5 bg-gradient-to-r from-green-400 to-transparent">
-                      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 bg-green-500 rounded-full"></div>
-                    </div>
-                  )}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {servicePortfolioItems.map((s, i) => (
+              <div key={i} className="border border-gray-100 rounded-xl p-6 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group bg-white">
+                <div className="w-12 h-12 rounded-lg bg-green-50 flex items-center justify-center text-green-600 mb-4 group-hover:bg-green-600 group-hover:text-white transition-all duration-300">
+                  {s.icon}
                 </div>
-                
-                <h5 className="process-name text-xl font-semibold text-gray-800 mb-3 group-hover:text-[#0f3b2c] transition-colors">
-                  {process.name}
-                </h5>
-                <p className="text-gray-500 text-sm leading-relaxed">
-                  {process.description}
-                </p>
+                <h3 className="font-semibold text-gray-800 mb-2 group-hover:text-green-700 transition-colors">{s.title}</h3>
+                <p className="text-gray-500 text-sm leading-relaxed">{s.desc}</p>
               </div>
             ))}
           </div>
-
-          <div className="text-center mt-16">
-            <button className="border-2 border-[#0f3b2c] text-[#0f3b2c] hover:bg-[#0f3b2c] hover:text-white font-semibold px-8 py-3 rounded-full transition-all duration-300 inline-flex items-center gap-2">
-              Learn More About Our Process <ArrowRight size={18} />
-            </button>
-          </div>
         </div>
       </section>
 
-      {/* SOLUTIONS CAROUSEL SECTION */}
-      <section className="bg-green-50 py-24">
-        <h2 className="text-4xl font-bold text-center mb-6">Powerful Software Solutions</h2>
-        <p className="text-center text-gray-600 mb-16">
-          Explore our suite of advanced software solutions designed to streamline your business processes.
-        </p>
-        <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-3 gap-10">
-          {carousels.map((carousel, i) => {
-            const item = carousel[indexes[i]];
-            return (
-              <div key={i} className="relative bg-white rounded-xl shadow-xl overflow-hidden">
-                <img src={item.img} className="h-56 w-full object-cover" alt={item.title} />
-                <div className="p-4 font-semibold text-center">{item.title}</div>
-                <button
-                  onClick={() => prev(i)}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow hover:bg-green-500 hover:text-white transition"
-                >
-                  <ChevronLeft size={20} />
-                </button>
-                <button
-                  onClick={() => next(i)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow hover:bg-green-500 hover:text-white transition"
-                >
-                  <ChevronRight size={20} />
-                </button>
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* TECHNOLOGIES CAROUSEL SECTION WITH LOGOS */}
-      <section className="py-24 bg-[#f1f5f9]">
+      {/* ── PROCEDURES WE FOLLOW ──────────────────────────────── */}
+      <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="flex flex-wrap mb-12">
-            <div className="md:w-1/2 w-full mb-4 md:mb-0">
-              <div className="flex flex-col items-start">
-                <h2 className="text-4xl font-bold text-[#0f3b2c] relative after:content-[''] after:absolute after:bottom-[-12px] after:left-0 after:w-16 after:h-1 after:bg-[#2c7a5e] after:rounded-full pb-4">
-                  Technologies We Master
-                </h2>
+          <div className="text-center mb-14">
+            <h2 className="text-4xl font-bold text-gray-800">Procedures <span className="text-green-600">We Follow</span></h2>
+            <p className="text-gray-500 mt-3 max-w-xl mx-auto text-sm">A repeatable and reliable process that results in accurate and meaningful output</p>
+            <div className="w-16 h-1 bg-green-500 mx-auto mt-4 rounded-full" />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {procedures.map((p, i) => (
+              <div key={i} className="relative text-center group">
+                {i < procedures.length - 1 && (
+                  <div className="hidden lg:block absolute top-10 left-[calc(50%+44px)] w-[calc(100%-88px)] h-px border-t-2 border-dashed border-green-200 z-0" />
+                )}
+                <div className="relative z-10 flex flex-col items-center">
+                  <div className="w-20 h-20 rounded-full bg-white border-2 border-green-200 group-hover:border-green-500 shadow-md flex flex-col items-center justify-center mb-4 transition-all duration-300 group-hover:shadow-xl">
+                    <i className={`${p.icon} text-green-600 text-xl mb-1`} />
+                    <span className="text-xs font-bold text-green-500">{p.number}</span>
+                  </div>
+                  <h4 className="font-semibold text-gray-800 mb-2 group-hover:text-green-700 transition-colors">{p.name}</h4>
+                  <p className="text-gray-500 text-sm leading-relaxed">{p.desc}</p>
+                </div>
               </div>
-            </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── ABOUT US + SHAPING THE FUTURE ─────────────────────── */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
+          <div>
+            <h2 className="text-3xl font-bold text-gray-800 mb-4">About <span className="text-green-600">Us</span></h2>
+            <div className="w-12 h-1 bg-green-500 rounded-full mb-6" />
+            <p className="text-gray-600 text-sm leading-relaxed mb-4">
+              Welcome to GorkhaSoft, where superior design and innovation come together to define the future of the digital age. Our team of talented technologists, skilled designers, and strategic thinkers dedicated to delivering excellence in every project.
+            </p>
+            <p className="text-gray-600 text-sm leading-relaxed mb-6">
+              As a premier web development company, we bring together a dynamic team of creative minds and tech enthusiasts dedicated to delivering seamless digital experiences for every client.
+            </p>
+            <Link to="/about" className="inline-flex items-center gap-2 text-green-700 font-semibold text-sm hover:gap-3 transition-all">
+              Learn More <ArrowRight size={16} />
+            </Link>
+          </div>
+          <div className="bg-gradient-to-br from-[#0f3b2c] to-[#1a5d4a] rounded-2xl p-8 text-white shadow-xl">
+            <h3 className="text-2xl font-bold mb-4">Shaping the Digital Future</h3>
+            <p className="text-green-100 text-sm leading-relaxed mb-4">
+              At GorkhaSoft, we craft innovative web solutions customized to each individual client's requirements. Our dynamic team of creative minds and tech enthusiasts is dedicated to delivering excellence.
+            </p>
+            <p className="text-green-100 text-sm leading-relaxed mb-6">
+              We believe in building long-term partnerships, transforming your ideas into powerful digital experiences that drive growth and success.
+            </p>
+            <Link to="/portfolio" className="inline-flex items-center gap-2 bg-green-500 hover:bg-green-400 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition">
+              View Portfolio <ExternalLink size={14} />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── OUR PORTFOLIO GRID ────────────────────────────────── */}
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-14">
+            <h2 className="text-4xl font-bold text-gray-800">Our <span className="text-green-600">Portfolio</span></h2>
+            <p className="text-gray-500 mt-3 text-sm">A showcase of projects we've delivered for clients across industries</p>
+            <div className="w-16 h-1 bg-green-500 mx-auto mt-4 rounded-full" />
           </div>
 
-          <div className="relative">
-            <div className="overflow-x-auto pb-6 scroll-smooth hide-scrollbar">
-              <div className="flex gap-6 w-max">
-                {techItems.map((tech, idx) => (
+          {portfolioError ? (
+            <p className="text-center text-red-500 text-sm py-10">{portfolioError}</p>
+          ) : portfolioLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[0, 1, 2].map((i) => <PortfolioSkeleton key={i} />)}
+            </div>
+          ) : projects.length === 0 ? (
+            <p className="text-center text-gray-400 text-sm py-10">No portfolio items found.</p>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {visibleProjects.map((project) => (
                   <div
-                    key={idx}
-                    className="bg-white rounded-2xl p-6 text-center min-w-[170px] hover:-translate-y-2 transition-all duration-300 shadow-md border border-gray-100 group cursor-pointer"
+                    key={project.id}
+                    className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 group flex flex-col"
+                    style={{ height: "400px" }}
                   >
-                    <i 
-                      className={`${tech.icon} text-5xl mb-4 block transition-all duration-300 group-hover:scale-110`}
-                      style={{ color: tech.color }}
-                    ></i>
-                    <span className="block font-semibold text-gray-800 text-base">{tech.name}</span>
-                    <span className="block text-xs text-gray-500 mt-2">{tech.desc}</span>
+                    {/* Image */}
+                    <div className="relative overflow-hidden h-48 flex-shrink-0 bg-gray-100">
+                      {project.image ? (
+                        <img
+                          src={project.image}
+                          alt={project.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          onError={(e) => {
+                            e.target.src = `https://placehold.co/600x400/0f3b2c/white?text=${encodeURIComponent(project.title)}`;
+                          }}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-300 text-4xl">🖼</div>
+                      )}
+
+                      {/* Category badge — categories is an array of objects {id, name} per API */}
+                      {project.categories?.length > 0 && (
+                        <div className="absolute top-3 left-3">
+                          <span className="text-xs bg-green-600 text-white px-2 py-1 rounded font-semibold tracking-wide uppercase">
+                            {project.categories[0]?.name ?? project.categories[0]}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Content */}
+                    <div className="p-5 flex flex-col flex-1">
+                      <h3 className="font-bold text-gray-800 text-lg mb-1 line-clamp-1 group-hover:text-green-700 transition-colors">
+                        {project.title}
+                      </h3>
+                      <p className="text-gray-500 text-xs leading-relaxed flex-1">
+                        {truncateWords(project.description, 15)}
+                      </p>
+
+                      {/* All category tags */}
+                      <div className="flex flex-wrap gap-1.5 mt-3">
+                        {project.categories?.map((cat, t) => (
+                          <span key={t} className="text-xs bg-green-100 text-green-700 px-2.5 py-1 rounded-full">
+                            {cat?.name ?? cat}
+                          </span>
+                        ))}
+                      </div>
+
+                      {/* Read More — uses slug like Portfolio.jsx */}
+                      <button
+                        onClick={() => navigate(`/portfolio/${project.slug}`)}
+                        className="mt-4 w-full py-2 rounded-lg bg-gradient-to-r from-[#0f3b2c] to-[#1a5d4a] text-white text-sm font-semibold hover:opacity-90 active:scale-95 transition-all duration-150"
+                      >
+                        Read More →
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
-            </div>
-            <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[#f1f5f9] to-transparent pointer-events-none"></div>
-            <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#f1f5f9] to-transparent pointer-events-none"></div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="flex justify-center items-center gap-3 mt-10">
+                  <button
+                    onClick={() => setPortfolioPage((p) => Math.max(0, p - 1))}
+                    disabled={portfolioPage === 0}
+                    className="w-9 h-9 rounded-full border border-gray-300 flex items-center justify-center hover:bg-green-600 hover:border-green-600 hover:text-white disabled:opacity-30 transition"
+                  >
+                    <ChevronLeft size={16} />
+                  </button>
+                  {Array.from({ length: totalPages }).map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setPortfolioPage(i)}
+                      className={`w-9 h-9 rounded-full text-sm font-medium transition ${
+                        portfolioPage === i ? "bg-green-600 text-white" : "border border-gray-300 hover:bg-green-50"
+                      }`}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => setPortfolioPage((p) => Math.min(totalPages - 1, p + 1))}
+                    disabled={portfolioPage === totalPages - 1}
+                    className="w-9 h-9 rounded-full border border-gray-300 flex items-center justify-center hover:bg-green-600 hover:border-green-600 hover:text-white disabled:opacity-30 transition"
+                  >
+                    <ChevronRight size={16} />
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+
+          <div className="text-center mt-8">
+            <Link
+              to="/portfolio"
+              className="inline-flex items-center gap-2 text-green-700 font-semibold text-sm border border-green-300 px-6 py-2.5 rounded-full hover:bg-green-600 hover:text-white hover:border-green-600 transition-all"
+            >
+              View All Projects <ArrowRight size={16} />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── TECHNOLOGIES USED — AUTOPLAY SLIDER ───────────────── */}
+      <section className="py-16 bg-white border-t border-gray-100">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl font-bold text-gray-800">Technologies <span className="text-green-600">Used</span></h2>
+            <p className="text-gray-500 mt-2 text-sm">We use various technologies and languages to suit the scope of projects and client needs</p>
+          </div>
+          <TechSlider />
+        </div>
+      </section>
+
+      {/* ── FEATURED BLOGS + CALENDAR ────────────────────────── */}
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-14">
+            <h2 className="text-4xl font-bold text-gray-800">Featured <span className="text-green-600">Blogs</span></h2>
+            <p className="text-gray-500 mt-3 text-sm">Stay updated with our latest news, events, and insights</p>
+            <div className="w-16 h-1 bg-green-500 mx-auto mt-4 rounded-full" />
           </div>
 
-          <div className="flex justify-center gap-3 mt-8">
-            <button
-              className="bg-white p-3 rounded-full shadow-md hover:bg-[#0f3b2c] hover:text-white transition-all duration-300"
-              onClick={() => {
-                const container = document.querySelector('.overflow-x-auto');
-                if (container) container.scrollBy({ left: -250, behavior: 'smooth' });
-              }}
-            >
-              <ChevronLeft size={20} />
-            </button>
-            <button
-              className="bg-white p-3 rounded-full shadow-md hover:bg-[#0f3b2c] hover:text-white transition-all duration-300"
-              onClick={() => {
-                const container = document.querySelector('.overflow-x-auto');
-                if (container) container.scrollBy({ left: 250, behavior: 'smooth' });
-              }}
-            >
-              <ChevronRight size={20} />
-            </button>
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* Blog cards — 2 cols */}
+            <div className="md:col-span-2 grid sm:grid-cols-2 gap-6">
+              {blogError ? (
+                <p className="col-span-2 text-center text-red-500 text-sm">{blogError}</p>
+              ) : blogLoading ? (
+                [0, 1, 2, 3].map((i) => <BlogSkeleton key={i} />)
+              ) : blogs.length === 0 ? (
+                <p className="col-span-2 text-center text-gray-400 text-sm">No blog posts found.</p>
+              ) : (
+                /* Blog fields from Blog.jsx: photo, subject, detail, created_at, slug */
+                blogs.slice(0, 4).map((post) => (
+                  <div
+                    key={post.id}
+                    className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition group flex flex-col"
+                  >
+                    {post.photo ? (
+                      <div className="overflow-hidden h-44 flex-shrink-0">
+                        <img
+                          src={post.photo}
+                          alt={post.subject}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          onError={(e) => { e.target.src = "https://placehold.co/600x400/1a5d4a/white?text=Blog"; }}
+                        />
+                      </div>
+                    ) : (
+                      <div className="h-44 flex-shrink-0 bg-gray-100 flex items-center justify-center text-gray-300 text-4xl">📝</div>
+                    )}
+
+                    <div className="p-4 flex flex-col flex-1">
+                      {/* Meta */}
+                      <div className="flex items-center gap-3 mb-2 text-xs text-gray-400">
+                        <span className="flex items-center gap-1">
+                          <Calendar size={12} />
+                          {formatDate(post.created_at)}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <User size={12} />
+                          Admin
+                        </span>
+                      </div>
+
+                      {/* "subject" = blog title per Blog.jsx */}
+                      <h4 className="font-semibold text-gray-800 text-sm mb-2 group-hover:text-green-700 transition-colors line-clamp-2">
+                        {post.subject}
+                      </h4>
+
+                      {/* "detail" = blog body per Blog.jsx */}
+                      <p className="text-gray-500 text-xs leading-relaxed line-clamp-2 flex-1">
+                        {truncateWords(post.detail, 20)}
+                      </p>
+
+                      {/* Read More — navigates to BlogDetail using slug */}
+                      <button
+                        onClick={() => navigate(`/blog/${post.slug}`)}
+                        className="mt-3 self-start inline-flex items-center gap-1 text-green-600 text-xs font-semibold hover:gap-2 transition-all"
+                      >
+                        Read More <ArrowRight size={12} />
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Event Calendar sidebar */}
+            <div className="bg-white rounded-xl shadow-sm p-6 h-fit">
+              <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <i className="fa-solid fa-calendar-days text-green-600" />
+                Event Calendar
+              </h4>
+              <div className="flex items-center justify-between mb-4">
+                <button className="text-gray-400 hover:text-green-600 transition"><ChevronLeft size={16} /></button>
+                <span className="text-sm font-semibold text-gray-700">April 2026</span>
+                <button className="text-gray-400 hover:text-green-600 transition"><ChevronRight size={16} /></button>
+              </div>
+              <table className="w-full text-center text-xs">
+                <thead>
+                  <tr className="text-gray-400">
+                    {["Su","Mo","Tu","We","Th","Fr","Sa"].map((d) => (
+                      <th key={d} className="pb-2 font-medium">{d}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {calendarDays.map((week, wi) => (
+                    <tr key={wi}>
+                      {week.map((day, di) => (
+                        <td key={di} className="py-1.5">
+                          {day ? (
+                            <span className={`w-7 h-7 inline-flex items-center justify-center rounded-full cursor-pointer text-xs transition
+                              ${day === 12 ? "bg-green-600 text-white font-bold" : "text-gray-600 hover:bg-green-50 hover:text-green-700"}`}>
+                              {day}
+                            </span>
+                          ) : null}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <div className="mt-4 space-y-2">
+                <div className="flex items-start gap-2 p-2 bg-green-50 rounded-lg">
+                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-1.5 flex-shrink-0" />
+                  <div>
+                    <p className="text-xs font-semibold text-gray-700">Tech Meetup - Apr 15</p>
+                    <p className="text-xs text-gray-500">Kathmandu Innovation Hub</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2 p-2 bg-blue-50 rounded-lg">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-1.5 flex-shrink-0" />
+                  <div>
+                    <p className="text-xs font-semibold text-gray-700">Product Launch - Apr 28</p>
+                    <p className="text-xs text-gray-500">HydroSoft v3.0 Release</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="text-center mt-10">
-            <p className="text-gray-500 text-sm">
-              {techItems.length}+ technologies and frameworks at your disposal
-            </p>
+            <Link
+              to="/blog"
+              className="inline-flex items-center gap-2 text-green-700 font-semibold text-sm border border-green-300 px-6 py-2.5 rounded-full hover:bg-green-600 hover:text-white hover:border-green-600 transition-all"
+            >
+              View All Blogs <ArrowRight size={16} />
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* WHY + CTA */}
-      <section className="py-24 max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
-        <div>
-          <h2 className="text-4xl font-bold mb-8">Why Choose Us</h2>
-          <ul className="space-y-6 text-gray-700">
-            <li className="flex gap-3">
-              <CheckCircle className="text-green-500 mt-1" />
-              <div>
-                <h4 className="font-semibold text-lg">Expertise & Experience</h4>
-                <p className="text-sm text-gray-600">
-                  We bring years of industry experience to deliver powerful and reliable solutions.
-                </p>
-                <p className="text-sm text-gray-600">
-                  Our team ensures every project meets the highest standards of quality and performance.
-                </p>
-              </div>
-            </li>
-            <li className="flex gap-3">
-              <CheckCircle className="text-green-500 mt-1" />
-              <div>
-                <h4 className="font-semibold text-lg">Client-Centric Approach</h4>
-                <p className="text-sm text-gray-600">
-                  Your business goals are at the center of everything we build.
-                </p>
-                <p className="text-sm text-gray-600">
-                  We work closely with clients to create solutions tailored to their needs.
-                </p>
-              </div>
-            </li>
-            <li className="flex gap-3">
-              <CheckCircle className="text-green-500 mt-1" />
-              <div>
-                <h4 className="font-semibold text-lg">Cutting-Edge Technology</h4>
-                <p className="text-sm text-gray-600">
-                  We use the latest tools and frameworks to build fast and secure systems.
-                </p>
-                <p className="text-sm text-gray-600">
-                  Our technology ensures your business stays ahead in a digital world.
-                </p>
-              </div>
-            </li>
-          </ul>
-        </div>
-
-        <div
-          className="relative p-12 rounded-2xl shadow-xl bg-center bg-no-repeat bg-cover overflow-hidden"
-          style={{
-            backgroundImage: `url(${ctaBg})`,
-            backgroundSize: "150%",
-            backgroundPosition: "center center",
-          }}
-        >
-          <div className="absolute inset-0 bg-green-900/70"></div>
-          <div className="relative z-10 text-white">
-            <h3 className="text-2xl font-bold mb-4">Ready to Transform Your Business?</h3>
-            <p className="text-green-100 mb-6">
-              Partner with us for cutting-edge solutions that drive growth and innovation.
-            </p>
-            <button className="bg-green-500 hover:bg-green-600 transition px-6 py-3 font-semibold rounded-lg">
-              Get a Free Quote
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* BLOG SECTION WITH READ MORE NAVIGATION */}
-      <section className="bg-gray-100 py-24">
-        <h2 className="text-4xl font-bold text-center mb-16">Latest Blog Posts</h2>
-        <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-3 gap-10">
-          {blogPosts.map((post, i) => (
-            <div key={i} className="bg-white rounded-xl shadow-xl overflow-hidden hover:-translate-y-2 transition cursor-pointer group">
-              <img src={post.img} className="h-52 w-full object-cover group-hover:scale-105 transition duration-300" alt={post.title} />
-              <div className="p-6">
-                <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full">
-                  {post.tag}
-                </span>
-                <h3 className="mt-4 font-semibold text-lg group-hover:text-[#0f3b2c] transition-colors">
-                  {post.title}
-                </h3>
-                <p className="mt-2 text-sm text-gray-600">
-                  {post.excerpt}
-                </p>
-                <button 
-                  onClick={handleReadMore}
-                  className="mt-4 text-sm text-green-600 font-semibold inline-flex items-center gap-1 hover:gap-2 transition-all duration-300"
-                >
-                  Read More <ArrowRight size={14} />
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-        
-        {/* View All Blog Button */}
-        <div className="text-center mt-12">
-          <button 
-            onClick={handleReadMore}
-            className="bg-[#0f3b2c] hover:bg-[#1a4d3a] text-white font-semibold px-8 py-3 rounded-full transition-all duration-300 inline-flex items-center gap-2 shadow-md hover:shadow-xl"
-          >
-            View All Blog Posts <ArrowRight size={18} />
-          </button>
-        </div>
-      </section>
-
-      {/* LEADERSHIP MESSAGE SECTION - UPDATED WITH PHOTO LEFT, TEXT RIGHT */}
+      {/* ── LEADERSHIP / CHAIRMAN MESSAGE ────────────────────── */}
       <section className="py-24 bg-gradient-to-br from-slate-50 to-stone-100">
         <div className="max-w-6xl mx-auto px-6 sm:px-8">
-          <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border border-stone-200 transition-all duration-300 hover:shadow-xl">
-            {/* Top accent bar */}
-            <div className="h-2 bg-gradient-to-r from-green-600 via-green-100 to-green-600"></div>
-            
+          <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border border-stone-200">
+            <div className="h-2 bg-gradient-to-r from-green-600 via-green-100 to-green-600" />
             <div className="grid md:grid-cols-2 gap-8 p-6 sm:p-12">
-              {/* Left Column - Chairperson Photo */}
               <div className="flex flex-col items-center justify-center">
                 <div className="relative w-full max-w-sm mx-auto">
-                  <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/20 to-red-500/20 rounded-2xl blur-xl"></div>
+                  <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/20 to-red-500/20 rounded-2xl blur-xl" />
                   <div className="relative bg-white p-2 rounded-2xl shadow-xl">
-                    <img 
-                      src={chairpersonPhoto} 
+                    <img
+                      src={chairpersonPhoto}
                       alt="Chairperson - Lhakpa Norbu Sherpa"
                       className="w-full h-auto rounded-xl object-cover aspect-[3/4]"
-                      onError={(e) => {
-                        e.target.src = "https://placehold.co/600x800/2c3e50/white?text=Chairperson";
-                      }}
+                      onError={(e) => { e.target.src = "https://placehold.co/600x800/2c3e50/white?text=Chairperson"; }}
                     />
                   </div>
-                  {/* Optional decorative element */}
                   <div className="absolute -bottom-3 -right-3 bg-amber-100 rounded-full p-2 shadow-md">
                     <span className="text-2xl">⛰️</span>
                   </div>
@@ -687,57 +625,36 @@ export default function Home() {
                   <h3 className="text-2xl font-bold text-stone-800">Lhakpa Norbu Sherpa</h3>
                   <p className="text-amber-700 font-medium">Chairperson, Sherpa Sewa Kendra</p>
                   <div className="flex justify-center gap-2 mt-3">
-                    <span className="inline-block w-2 h-2 bg-amber-500 rounded-full"></span>
-                    <span className="inline-block w-2 h-2 bg-red-500 rounded-full"></span>
-                    <span className="inline-block w-2 h-2 bg-amber-500 rounded-full"></span>
+                    <span className="inline-block w-2 h-2 bg-amber-500 rounded-full" />
+                    <span className="inline-block w-2 h-2 bg-red-500 rounded-full" />
+                    <span className="inline-block w-2 h-2 bg-amber-500 rounded-full" />
                   </div>
                 </div>
               </div>
 
-              {/* Right Column - Message */}
               <div className="flex flex-col justify-center">
                 <div className="mb-4">
                   <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-amber-50 rounded-full border border-amber-200">
                     <span className="text-amber-700 text-sm font-semibold tracking-wider">🏔️ LEADERSHIP MESSAGE</span>
                   </div>
-                  <h2 className="mt-4 text-3xl sm:text-4xl font-bold text-stone-800">
-                    Message from Our Chairperson
-                  </h2>
-                  <div className="mt-2 w-16 h-1 bg-amber-500 rounded-full"></div>
+                  <h2 className="mt-4 text-3xl sm:text-4xl font-bold text-stone-800">Message from Our Chairperson</h2>
+                  <div className="mt-2 w-16 h-1 bg-amber-500 rounded-full" />
                 </div>
-
-                <div className="space-y-5 text-stone-700 text-base sm:text-lg leading-relaxed">
-                  <p>
-                    Dear friends and members of the Sherpa community.
-                  </p>
-                  <p>
-                    It is with great pride and humility that I address you as the Chairperson of Sherpa Sewa Kendra. 
-                    Our organization stands as a testament to the strength, resilience, and unity of our community.
-                  </p>
-                  <p>
-                    In today's rapidly changing world, we face both challenges and opportunities. 
-                    Our mission remains clear: to preserve our rich cultural heritage while empowering our community 
-                    through education, welfare, and sustainable development.
-                  </p>
-                  <p>
-                    Together, we will continue to build a brighter future for the Sherpa community — one that honors 
-                    our past, serves our present, and secures our future. I invite each of you to join us in this noble journey.
-                  </p>
+                <div className="space-y-4 text-stone-700 text-base leading-relaxed">
+                  <p>Dear friends and members of the Sherpa community.</p>
+                  <p>It is with great pride and humility that I address you as the Chairperson of Sherpa Sewa Kendra. Our organization stands as a testament to the strength, resilience, and unity of our community.</p>
+                  <p>In today's rapidly changing world, we face both challenges and opportunities. Our mission remains clear: to preserve our rich cultural heritage while empowering our community through education, welfare, and sustainable development.</p>
+                  <p>Together, we will continue to build a brighter future — one that honors our past, serves our present, and secures our future. I invite each of you to join us in this noble journey.</p>
                   <p className="italic text-amber-700 border-l-4 border-amber-500 pl-4">
                     With warm regards and best wishes for our community's continued prosperity.
                   </p>
                 </div>
-
-                {/* Organization Motto */}
                 <div className="mt-8 flex flex-wrap items-center gap-4 text-stone-400 text-sm">
                   <div className="flex items-center gap-2 bg-stone-50 px-4 py-2 rounded-full">
-                    <span className="text-base">🏔️</span>
+                    <span>🏔️</span>
                     <span>Preserving heritage · Empowering futures</span>
                   </div>
-                  <div className="flex items-center gap-2 text-stone-400">
-                    <span>Unity • Resilience • Service</span>
-                    <span className="text-xs">Est. 2010</span>
-                  </div>
+                  <span className="text-stone-400">Unity • Resilience • Service · Est. 2010</span>
                 </div>
               </div>
             </div>
@@ -745,17 +662,6 @@ export default function Home() {
         </div>
       </section>
 
-      <Footer />
-
-      <style>{`
-        .hide-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-        .hide-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-      `}</style>
     </div>
   );
 }
