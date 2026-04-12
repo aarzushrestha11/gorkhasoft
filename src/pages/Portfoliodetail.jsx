@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import API from "../api/axios";
+// eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
 
 export default function PortfolioDetail() {
