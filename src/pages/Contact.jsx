@@ -179,7 +179,6 @@ export default function ContactForm() {
         </div>
       </div>
 
-      <Footer />
     </>
   );
 }
