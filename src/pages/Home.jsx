@@ -15,6 +15,7 @@ import {
   PenTool,
   Server,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom"; 
 import ctaBg from "../assets/cta-bg.png";
 import Navbar from "../Components/Navbar";
 import heroBg from "../assets/hero-bg.png";
@@ -94,6 +95,7 @@ const portfolioCarouselItems = [
     description: "Intelligent customer support automation tool with natural language processing and 24/7 availability.",
   },
 ];
+
 
 // Technology items with respective logos
 const techItems = [
@@ -186,6 +188,7 @@ const blogPosts = [
 ];
 
 export default function Home() {
+  const navigate = useNavigate(); 
   const [indexes, setIndexes] = useState([0, 0, 0]);
   const [portfolioIndex, setPortfolioIndex] = useState(0);
 
@@ -208,7 +211,9 @@ export default function Home() {
   const prevPortfolio = () => {
     setPortfolioIndex((prevIndex) => (prevIndex - 1 + portfolioCarouselItems.length) % portfolioCarouselItems.length);
   };
-
+  const handleViewServices = () => {
+    navigate("/services");
+  };
   const handleReadMore = () => {
     window.location.href = '/blog';
   };
@@ -272,12 +277,14 @@ export default function Home() {
               ))}
             </div>
 
-            <div className="text-center mt-12">
-              <button className="bg-[#0f3b2c] hover:bg-[#1a4d3a] text-white font-semibold px-8 py-3 rounded-full transition-all duration-300 inline-flex items-center gap-2 shadow-md hover:shadow-xl">
-                View All Services <ArrowRight size={18} />
-              </button>
-            </div>
-          </div>
+<div className="text-center mt-10">
+          <button
+            onClick={handleViewServices} // ✅ FIXED
+            className="bg-green-700 text-white px-6 py-3 rounded-full flex items-center gap-2 mx-auto"
+          >
+            View All Services <ArrowRight size={18} />
+          </button>
+        </div>          </div>
         </section>
       </section>
 
