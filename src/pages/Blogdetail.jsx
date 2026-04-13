@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Calendar, User, ArrowLeft, Tag } from "lucide-react";
-import Navbar from "../Components/Navbar";
-import Footer from "../Components/Footer";
 import API from "../api/axios";
 
 function formatDate(str) {
@@ -60,7 +58,6 @@ export default function BlogDetail() {
 
   return (
     <div className="bg-slate-50 text-gray-800 min-h-screen">
-      <Navbar />
 
       {/* HERO — cover image or gradient fallback */}
       <div className="relative w-full h-72 md:h-96 overflow-hidden bg-gradient-to-r from-[#0f3b2c] to-[#1a5d4a]">
@@ -125,7 +122,6 @@ export default function BlogDetail() {
         </div>
       </article>
 
-      <Footer />
     </div>
   );
 }

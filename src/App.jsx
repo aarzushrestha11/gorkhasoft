@@ -1,3 +1,4 @@
+import BlogDetail from "./pages/Blogdetail";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "./Components/Navbar";
 import Home from "./pages/Home";
@@ -7,11 +8,12 @@ import Blog from "./pages/Blog";
 import PortfolioDetail from "./pages/Portfoliodetail";
 import Footer from "./Components/Footer";
 import Contact from "./pages/Contact";
-import BlogDetail from "./pages/Blogdetail";
+import ScrollToTop from "./Components/ScrollTop";
 import "./index.css"
 export default function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Navbar />
       <main className="pt-16">
         <Routes>

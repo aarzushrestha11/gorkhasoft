@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Calendar, User, Tag, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../Components/Navbar";
-import Footer from "../Components/Footer";
 import API from "../api/axios";
 
 function formatDate(str) {
@@ -60,7 +58,6 @@ const Blog = () => {
 
   return (
     <div className="bg-slate-50 text-gray-800">
-      <Navbar />
 
       {/* HERO */}
       <section className="bg-gradient-to-r from-[#0f3b2c] to-[#1a5d4a] text-white py-20 text-center">
@@ -130,7 +127,6 @@ const Blog = () => {
         )}
       </section>
 
-      <Footer />
     </div>
   );
 };
