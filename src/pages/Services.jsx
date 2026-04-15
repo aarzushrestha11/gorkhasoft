@@ -1,14 +1,18 @@
 import React from "react";
-import {
-  Code,
-  Globe,
-  Smartphone,
-  Cloud,
-  Shield,
-  Database,
-  ArrowRight,
-  CheckCircle,
-} from "lucide-react";
+// ✅ Import each icon from its own file
+import Code from "lucide-react/dist/esm/icons/code";
+import Globe from "lucide-react/dist/esm/icons/globe";
+import Headphones from "lucide-react/dist/esm/icons/headphones";
+import ArrowRight from "lucide-react/dist/esm/icons/arrow-right";
+import Smartphone from "lucide-react/dist/esm/icons/smartphone";
+import BarChart from "lucide-react/dist/esm/icons/bar-chart";
+import Server from "lucide-react/dist/esm/icons/server";
+import Sparkles from "lucide-react/dist/esm/icons/sparkles";
+import Cloud from "lucide-react/dist/esm/icons/cloud";
+import Calendar from "lucide-react/dist/esm/icons/calendar";
+import Shield from "lucide-react/dist/esm/icons/shield";
+import Database from "lucide-react/dist/esm/icons/database";
+import CheckCircle from "lucide-react/dist/esm/icons/check-circle";
 
 import Navbar from "../Components/Navbar";
 import Footer from "../Components/Footer";

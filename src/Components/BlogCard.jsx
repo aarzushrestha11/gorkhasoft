@@ -1,22 +1,20 @@
 //eslint-disable-next-line no-unused-vars
-import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight, Calendar, User } from "lucide-react";
+import LazyImage from "./LazyLoading";
+import Blog from "../pages/Blog";
 
 export default function BlogCard({ post, index }) {
   const navigate = useNavigate();
 
   return (
-    <motion.article
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.08 }}
-      whileHover={{ y: -4, boxShadow: "0 20px 40px -12px rgba(0,0,0,0.12)" }}
-      onClick={() => navigate(`/blog/${post.slug}`)}
-      className="bg-white rounded-2xl border border-gray-100 shadow-[0_4px_16px_-4px_rgba(0,0,0,0.08)] cursor-pointer overflow-hidden flex flex-col transition-shadow duration-300"
+      <article
+      className="bg-white rounded-2xl border border-gray-100 shadow-[0_4px_16px_-4px_rgba(0,0,0,0.08)] overflow-hidden flex flex-col
+                 opacity-0 animate-fadeUp hover:-translate-y-1 hover:shadow-xl transition-all duration-300"
+      style={{ animationDelay: `${index * 80}ms`, animationFillMode: "forwards" }}
     >
       <div className="h-48 overflow-hidden bg-gray-50">
-        <img
+        <LazyImage
           src={post.photo}
           alt={post.subject}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -38,12 +36,12 @@ export default function BlogCard({ post, index }) {
               {new Date(post.created_at).toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" })}
             </span>
           )}
-          <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 ml-auto group">
+          <span  onClick={() => navigate(`/blog/${Blog.slug}`)} className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 ml-auto group">
             Read more
             <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform duration-200" />
           </span>
         </div>
       </div>
-    </motion.article>
+    </article>
   );
 }

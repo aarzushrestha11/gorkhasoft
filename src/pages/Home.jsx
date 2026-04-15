@@ -1,18 +1,26 @@
 import React, { useState, useRef, useEffect } from "react";
 import useFetch from "../hooks/useFetch";
-import {
-  Code, Globe, Headphones, ArrowRight,
-  ChevronLeft, ChevronRight, Smartphone,
-  BarChart, PenTool, Server, ExternalLink, Sparkles,
-} from "lucide-react";
+// ✅ Import each icon from its own file
+import Code from "lucide-react/dist/esm/icons/code";
+import Globe from "lucide-react/dist/esm/icons/globe";
+import Headphones from "lucide-react/dist/esm/icons/headphones";
+import ArrowRight from "lucide-react/dist/esm/icons/arrow-right";
+import Smartphone from "lucide-react/dist/esm/icons/smartphone";
+import BarChart from "lucide-react/dist/esm/icons/bar-chart";
+import Server from "lucide-react/dist/esm/icons/server";
+import Sparkles from "lucide-react/dist/esm/icons/sparkles";
+import Calendar from "lucide-react/dist/esm/icons/calendar";
+import PenTool from "lucide-react/dist/esm/icons/pen-tool";
+import ExternalLink from "lucide-react/dist/esm/icons/external-link";
 import { Link } from "react-router-dom";
 //eslint-disable-next-line no-unused-vars
 import { motion, useInView } from "framer-motion";
-import heroBg from "../assets/hero-bg.png";
-import "@fortawesome/fontawesome-free/css/all.min.css";
+import '@fortawesome/fontawesome-free/css/all.min.css';
 import chairpersonPhoto from "../assets/chairperson.webp";
 import PortfolioCard from "../Components/PortfolioCard";
 import BlogCard from "../Components/BlogCard";
+import LazyImage from "../Components/LazyLoading";
+
 
 // ── Animation variants ────────────────────────────────────────────
 
@@ -29,15 +37,12 @@ const stagger = (delay = 0.1) => ({
 // ── Shared components ─────────────────────────────────────────────
 
 function AnimSection({ children, className = "", delay = 0 }) {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
   return (
     <motion.div
-      ref={ref}
-      initial="hidden"
-      animate={inView ? "visible" : "hidden"}
-      variants={fadeUp}
-      transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1], delay }}
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{ duration: 0.5, delay }}
       className={className}
     >
       {children}
@@ -57,19 +62,31 @@ function SectionHeading({ label, title, accent, subtitle }) {
       className="text-center mb-14"
     >
       {label && (
-        <motion.p variants={fadeUp} className="text-xs font-bold tracking-widest uppercase text-emerald-500 mb-3">
+        <motion.p
+          variants={fadeUp}
+          className="text-xs font-bold tracking-widest uppercase text-emerald-500 mb-3"
+        >
           {label}
         </motion.p>
       )}
-      <motion.h2 variants={fadeUp} className="text-4xl font-extrabold text-gray-900 tracking-tight">
+      <motion.h2
+        variants={fadeUp}
+        className="text-4xl font-extrabold text-gray-900 tracking-tight"
+      >
         {title} <span className="text-emerald-600">{accent}</span>
       </motion.h2>
       {subtitle && (
-        <motion.p variants={fadeUp} className="text-gray-500 mt-3 max-w-xl mx-auto text-sm leading-relaxed">
+        <motion.p
+          variants={fadeUp}
+          className="text-gray-500 mt-3 max-w-xl mx-auto text-sm leading-relaxed"
+        >
           {subtitle}
         </motion.p>
       )}
-      <motion.div variants={fadeUp} className="w-10 h-1 bg-emerald-500 mx-auto mt-4 rounded-full" />
+      <motion.div
+        variants={fadeUp}
+        className="w-10 h-1 bg-emerald-500 mx-auto mt-4 rounded-full"
+      />
     </motion.div>
   );
 }
@@ -77,42 +94,101 @@ function SectionHeading({ label, title, accent, subtitle }) {
 // ── Static data ───────────────────────────────────────────────────
 
 const SERVICE_ITEMS = [
-  { icon: <Globe size={20} />,      title: "Website Design & Development", desc: "Stunning, conversion-optimized websites built with modern frameworks and best practices." },
-  { icon: <Code size={20} />,       title: "E-commerce Solutions",         desc: "Robust online stores with secure payment gateways, inventory management, and analytics." },
-  { icon: <Server size={20} />,     title: "Content Management Systems",   desc: "Scalable CMS platforms like WordPress, enabling clients to manage and update their content." },
-  { icon: <Smartphone size={20} />, title: "Mobile Responsive Design",     desc: "Flawless experiences across all screen sizes, providing a seamless multi-device experience." },
-  { icon: <BarChart size={20} />,   title: "Search Engine Optimization",   desc: "Data-driven SEO strategies that improve rankings, drive organic traffic, and boost conversions." },
-  { icon: <Headphones size={20} />, title: "Maintenance & Support",        desc: "Proactive monitoring, updates, security patches, and technical support for peak performance." },
-  { icon: <PenTool size={20} />,    title: "UI/UX Design",                 desc: "User-centered design, wireframing, prototyping, and usability testing for delightful interfaces." },
-  { icon: <Code size={20} />,       title: "Custom Web Solutions",         desc: "Bespoke applications tailored precisely to your business logic, workflows, and integrations." },
-  { icon: <PenTool size={20} />,    title: "Graphic Design",               desc: "Compelling visual identities, marketing collateral, and brand assets that resonate." },
+  {
+    icon: <Globe size={20} />,
+    title: "Website Design & Development",
+    desc: "Stunning, conversion-optimized websites built with modern frameworks and best practices.",
+  },
+  {
+    icon: <Code size={20} />,
+    title: "E-commerce Solutions",
+    desc: "Robust online stores with secure payment gateways, inventory management, and analytics.",
+  },
+  {
+    icon: <Server size={20} />,
+    title: "Content Management Systems",
+    desc: "Scalable CMS platforms like WordPress, enabling clients to manage and update their content.",
+  },
+  {
+    icon: <Smartphone size={20} />,
+    title: "Mobile Responsive Design",
+    desc: "Flawless experiences across all screen sizes, providing a seamless multi-device experience.",
+  },
+  {
+    icon: <BarChart size={20} />,
+    title: "Search Engine Optimization",
+    desc: "Data-driven SEO strategies that improve rankings, drive organic traffic, and boost conversions.",
+  },
+  {
+    icon: <Headphones size={20} />,
+    title: "Maintenance & Support",
+    desc: "Proactive monitoring, updates, security patches, and technical support for peak performance.",
+  },
+  {
+    icon: <PenTool size={20} />,
+    title: "UI/UX Design",
+    desc: "User-centered design, wireframing, prototyping, and usability testing for delightful interfaces.",
+  },
+  {
+    icon: <Code size={20} />,
+    title: "Custom Web Solutions",
+    desc: "Bespoke applications tailored precisely to your business logic, workflows, and integrations.",
+  },
+  {
+    icon: <PenTool size={20} />,
+    title: "Graphic Design",
+    desc: "Compelling visual identities, marketing collateral, and brand assets that resonate.",
+  },
 ];
 
 const PROCEDURES = [
-  { number: "01", icon: "fa-solid fa-magnifying-glass", name: "Gathering Information", desc: "We deeply understand your goals, audience, and requirements before a single line is written." },
-  { number: "02", icon: "fa-solid fa-code",             name: "Design & Development",  desc: "Our team designs and builds your solution with cutting-edge technology and clean architecture." },
-  { number: "03", icon: "fa-solid fa-face-smile",       name: "Customer Satisfaction", desc: "Rigorous QA and client feedback loops ensure every detail meets your expectations." },
-  { number: "04", icon: "fa-solid fa-rocket",           name: "Deployment",            desc: "Smooth launch, zero-downtime deployment, and ongoing support for long-term success." },
+  {
+    number: "01",
+    icon: "fa-solid fa-magnifying-glass",
+    name: "Gathering Information",
+    desc: "We deeply understand your goals, audience, and requirements before a single line is written.",
+  },
+  {
+    number: "02",
+    icon: "fa-solid fa-code",
+    name: "Design & Development",
+    desc: "Our team designs and builds your solution with cutting-edge technology and clean architecture.",
+  },
+  {
+    number: "03",
+    icon: "fa-solid fa-face-smile",
+    name: "Customer Satisfaction",
+    desc: "Rigorous QA and client feedback loops ensure every detail meets your expectations.",
+  },
+  {
+    number: "04",
+    icon: "fa-solid fa-rocket",
+    name: "Deployment",
+    desc: "Smooth launch, zero-downtime deployment, and ongoing support for long-term success.",
+  },
 ];
 
-const TECH_ITEMS = [
-  { icon: "fa-brands fa-js",        name: "JavaScript", color: "#F7DF1E" },
-  { icon: "fa-brands fa-python",    name: "Django",     color: "#3ecf8e" },
-  { icon: "fa-brands fa-wordpress", name: "WordPress",  color: "#21759B" },
-  { icon: "fa-brands fa-react",     name: "React",      color: "#61DAFB" },
-  { icon: "fa-brands fa-java",      name: "Java",       color: "#f89820" },
-  { icon: "fa-solid fa-database",   name: "PostgreSQL", color: "#6c9ac3" },
-  { icon: "fa-brands fa-bootstrap", name: "Bootstrap",  color: "#7952B3" },
-  { icon: "fa-brands fa-vuejs",     name: "Vue.js",     color: "#42B883" },
-  { icon: "fa-brands fa-node-js",   name: "Node.js",    color: "#339933" },
-  { icon: "fa-brands fa-docker",    name: "Docker",     color: "#2496ED" },
-  { icon: "fa-brands fa-figma",     name: "Figma",      color: "#F24E1E" },
-  { icon: "fa-brands fa-laravel",   name: "Laravel",    color: "#FF2D20" },
+const techItems = [
+  { icon: "fa-brands fa-react", name: "React.js", desc: "Frontend ecosystem", color: "#61DAFB" },
+  { icon: "fa-brands fa-vuejs", name: "Vue.js", desc: "Reactive UIs", color: "#42B883" },
+  { icon: "fa-brands fa-angular", name: "Angular", desc: "Enterprise ready", color: "#DD0031" },
+  { icon: "fa-brands fa-python", name: "Python", desc: "Django, FastAPI", color: "#3776AB" },
+  { icon: "fa-brands fa-node-js", name: "Node.js", desc: "Backend JS", color: "#339933" },
+  { icon: "fa-brands fa-laravel", name: "Laravel", desc: "PHP artisan", color: "#FF2D20" },
+  { icon: "fa-brands fa-java", name: "Java", desc: "Spring Boot", color: "#007396" },
+  { icon: "fa-brands fa-js", name: "JavaScript", desc: "Core language", color: "#F7DF1E" },
+  { icon: "fa-brands fa-php", name: "PHP", desc: "Server-side scripting", color: "#777BB4" },
+  { icon: "fa-brands fa-golang", name: "Go", desc: "High performance", color: "#00ADD8" },
+  { icon: "fa-solid fa-cloud", name: "AWS Cloud", desc: "Scalable infra", color: "#FF9900" },
+  { icon: "fa-solid fa-database", name: "PostgreSQL", desc: "Reliable DB", color: "#4169E1" },
+  { icon: "fa-brands fa-figma", name: "Figma", desc: "UI/UX design", color: "#F24E1E" },
+  { icon: "fa-brands fa-docker", name: "Docker", desc: "Containerization", color: "#2496ED" },
+  { icon: "fa-brands fa-git-alt", name: "Git", desc: "Version control", color: "#F05032" },
+  { icon: "fa-solid fa-code", name: "TypeScript", desc: "Type-safe JS", color: "#3178C6" },
 ];
-
 const HERO_STATS = [
   ["50+", "Projects Delivered"],
-  ["8+",  "Years Experience"],
+  ["8+", "Years Experience"],
   ["100%", "Client Satisfaction"],
 ];
 
@@ -121,7 +197,13 @@ const HERO_STATS = [
 function HeroSection() {
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden bg-[#071a10]">
-      <div className="absolute inset-0 bg-cover bg-center opacity-20" style={{ backgroundImage: `url(${heroBg})` }} />
+      <img
+        src="/hero-bg.webp"
+        alt=""
+        fetchpriority="high"
+        decoding="async"
+        className="absolute inset-0 w-full h-full object-cover opacity-20"
+      />
       <div className="absolute inset-0 bg-gradient-to-br from-[#071a10] via-[#0d2d1a]/90 to-[#0f3b24]/80" />
       <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-1/3 left-1/5 w-64 h-64 bg-teal-400/8 rounded-full blur-[100px] pointer-events-none" />
@@ -134,18 +216,34 @@ function HeroSection() {
       />
 
       <div className="relative max-w-7xl mx-auto px-6 py-32 w-full">
-        <motion.div variants={stagger(0.12)} initial="hidden" animate="visible" className="max-w-3xl">
-          <motion.div variants={fadeUp} className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold px-4 py-2 rounded-full mb-6 backdrop-blur-sm">
+        <motion.div
+          variants={stagger(0.12)}
+          initial="hidden"
+          animate="visible"
+          className="max-w-3xl"
+        >
+          <motion.div
+            variants={fadeUp}
+            className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold px-4 py-2 rounded-full mb-6 backdrop-blur-sm"
+          >
             <Sparkles size={12} /> Welcome to GorkhaSoft
           </motion.div>
 
-          <motion.h1 variants={fadeUp} className="text-5xl md:text-7xl font-extrabold text-white leading-[1.05] tracking-tight mb-6">
+          <motion.h1
+            variants={fadeUp}
+            className="text-5xl md:text-7xl font-extrabold text-white leading-[1.05] tracking-tight mb-6"
+          >
             Where <span className="text-emerald-400">Quality</span>
             <br />& Innovation <span className="text-emerald-400">Collide</span>
           </motion.h1>
 
-          <motion.p variants={fadeUp} className="text-gray-300 text-lg leading-relaxed max-w-lg mb-10">
-            We create innovative digital solutions that enable companies to prosper in the digital era. Skilled technologists and creative thinkers — bringing your vision to life.
+          <motion.p
+            variants={fadeUp}
+            className="text-gray-300 text-lg leading-relaxed max-w-lg mb-10"
+          >
+            We create innovative digital solutions that enable companies to
+            prosper in the digital era. Skilled technologists and creative
+            thinkers — bringing your vision to life.
           </motion.p>
 
           <motion.div variants={fadeUp} className="flex gap-4 flex-wrap">
@@ -154,7 +252,10 @@ function HeroSection() {
               className="group bg-emerald-500 hover:bg-emerald-400 text-white px-8 py-3.5 rounded-xl font-semibold inline-flex items-center gap-2 shadow-lg shadow-emerald-500/30 transition-all duration-200 hover:-translate-y-0.5"
             >
               Explore Services
-              <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform duration-200" />
+              <ArrowRight
+                size={16}
+                className="group-hover:translate-x-1 transition-transform duration-200"
+              />
             </Link>
             <Link
               to="/portfolio"
@@ -181,7 +282,9 @@ function HeroSection() {
         transition={{ delay: 1.5 }}
         className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
       >
-        <span className="text-xs text-white/25 tracking-widest uppercase">Scroll</span>
+        <span className="text-xs text-white/25 tracking-widest uppercase">
+          Scroll
+        </span>
         <motion.div
           animate={{ y: [0, 7, 0] }}
           transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
@@ -193,6 +296,9 @@ function HeroSection() {
 }
 
 function ServicesSection() {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-60px" });
+
   return (
     <section className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-6">
@@ -203,9 +309,10 @@ function ServicesSection() {
           subtitle="Comprehensive digital solutions tailored to your business needs"
         />
         <motion.div
+          ref={ref}
           variants={stagger(0.07)}
           initial="hidden"
-          whileInView="visible"
+          animate={inView ? "visible" : "hidden"}
           viewport={{ once: true, margin: "-60px" }}
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
         >
@@ -219,8 +326,12 @@ function ServicesSection() {
               <div className="w-11 h-11 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 mb-4 group-hover:bg-emerald-500 group-hover:text-white transition-all duration-300">
                 {service.icon}
               </div>
-              <h3 className="font-bold text-gray-800 mb-2 text-sm group-hover:text-emerald-700 transition-colors">{service.title}</h3>
-              <p className="text-gray-500 text-xs leading-relaxed">{service.desc}</p>
+              <h3 className="font-bold text-gray-800 mb-2 text-sm group-hover:text-emerald-700 transition-colors">
+                {service.title}
+              </h3>
+              <p className="text-gray-500 text-xs leading-relaxed">
+                {service.desc}
+              </p>
             </motion.div>
           ))}
         </motion.div>
@@ -230,6 +341,8 @@ function ServicesSection() {
 }
 
 function ProceduresSection() {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-60px" });
   return (
     <section className="py-24 bg-[#f0f7f4]">
       <div className="max-w-7xl mx-auto px-6">
@@ -240,14 +353,19 @@ function ProceduresSection() {
           subtitle="A repeatable and reliable process that results in accurate and meaningful output"
         />
         <motion.div
+          ref={ref}
           variants={stagger(0.12)}
           initial="hidden"
-          whileInView="visible"
+          animate={inView ? "visible" : "hidden"}
           viewport={{ once: true, margin: "-60px" }}
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
         >
           {PROCEDURES.map((step, i) => (
-            <motion.div key={i} variants={fadeUp} className="relative text-center group">
+            <motion.div
+              key={i}
+              variants={fadeUp}
+              className="relative text-center group"
+            >
               {i < PROCEDURES.length - 1 && (
                 <div className="hidden lg:block absolute top-10 left-[calc(50%+48px)] w-[calc(100%-96px)] border-t-2 border-dashed border-emerald-200 z-0" />
               )}
@@ -258,10 +376,16 @@ function ProceduresSection() {
                   className="w-20 h-20 rounded-2xl bg-white border-2 border-emerald-100 group-hover:border-emerald-400 shadow-sm flex flex-col items-center justify-center mb-5 transition-colors duration-300 group-hover:shadow-lg group-hover:shadow-emerald-100"
                 >
                   <i className={`${step.icon} text-emerald-500 text-xl mb-1`} />
-                  <span className="text-xs font-bold text-emerald-400">{step.number}</span>
+                  <span className="text-xs font-bold text-emerald-400">
+                    {step.number}
+                  </span>
                 </motion.div>
-                <h4 className="font-bold text-gray-800 mb-2 text-sm group-hover:text-emerald-700 transition-colors">{step.name}</h4>
-                <p className="text-gray-500 text-xs leading-relaxed">{step.desc}</p>
+                <h4 className="font-bold text-gray-800 mb-2 text-sm group-hover:text-emerald-700 transition-colors">
+                  {step.name}
+                </h4>
+                <p className="text-gray-500 text-xs leading-relaxed">
+                  {step.desc}
+                </p>
               </div>
             </motion.div>
           ))}
@@ -276,22 +400,33 @@ function AboutSection() {
     <section className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-14 items-center">
         <AnimSection>
-          <p className="text-xs font-bold tracking-widest uppercase text-emerald-500 mb-3">Who We Are</p>
+          <p className="text-xs font-bold tracking-widest uppercase text-emerald-500 mb-3">
+            Who We Are
+          </p>
           <h2 className="text-4xl font-extrabold text-gray-900 mb-4 leading-tight">
             About <span className="text-emerald-600">GorkhaSoft</span>
           </h2>
           <div className="w-10 h-1 bg-emerald-500 rounded-full mb-6" />
           <p className="text-gray-600 text-sm leading-relaxed mb-4">
-            Welcome to GorkhaSoft, where superior design and innovation come together to define the future of the digital age. Our team of talented technologists, skilled designers, and strategic thinkers are dedicated to delivering excellence in every project.
+            Welcome to GorkhaSoft, where superior design and innovation come
+            together to define the future of the digital age. Our team of
+            talented technologists, skilled designers, and strategic thinkers
+            are dedicated to delivering excellence in every project.
           </p>
           <p className="text-gray-600 text-sm leading-relaxed mb-7">
-            As a premier web development company, we bring together a dynamic team of creative minds and tech enthusiasts dedicated to delivering seamless digital experiences.
+            As a premier web development company, we bring together a dynamic
+            team of creative minds and tech enthusiasts dedicated to delivering
+            seamless digital experiences.
           </p>
           <Link
             to="/about"
             className="group inline-flex items-center gap-2 text-emerald-700 font-semibold text-sm border border-emerald-200 px-5 py-2.5 rounded-xl hover:bg-emerald-600 hover:text-white hover:border-emerald-600 transition-all duration-200"
           >
-            Learn More <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform duration-200" />
+            Learn More{" "}
+            <ArrowRight
+              size={14}
+              className="group-hover:translate-x-1 transition-transform duration-200"
+            />
           </Link>
         </AnimSection>
 
@@ -303,12 +438,18 @@ function AboutSection() {
               <div className="inline-flex items-center gap-2 bg-emerald-500/20 border border-emerald-400/20 text-emerald-300 text-xs font-semibold px-3 py-1.5 rounded-full mb-5">
                 <Sparkles size={11} /> Our Mission
               </div>
-              <h3 className="text-2xl font-extrabold mb-4 leading-tight">Shaping the Digital Future</h3>
+              <h3 className="text-2xl font-extrabold mb-4 leading-tight">
+                Shaping the Digital Future
+              </h3>
               <p className="text-emerald-100/80 text-sm leading-relaxed mb-4">
-                At GorkhaSoft, we craft innovative web solutions customized to each individual client's requirements. Our dynamic team is dedicated to delivering excellence.
+                At GorkhaSoft, we craft innovative web solutions customized to
+                each individual client's requirements. Our dynamic team is
+                dedicated to delivering excellence.
               </p>
               <p className="text-emerald-100/80 text-sm leading-relaxed mb-7">
-                We believe in building long-term partnerships, transforming your ideas into powerful digital experiences that drive growth and success.
+                We believe in building long-term partnerships, transforming your
+                ideas into powerful digital experiences that drive growth and
+                success.
               </p>
               <Link
                 to="/portfolio"
@@ -334,13 +475,17 @@ function PortfolioSection({ projects, loading, error }) {
 
   const visibleProjects = projects.slice(
     safePage * perPage,
-    safePage * perPage + perPage
+    safePage * perPage + perPage,
   );
 
   return (
     <section className="py-24 bg-[#f0f7f4]">
       <div className="max-w-7xl mx-auto px-6">
-        <SectionHeading title="Featured" accent="Projects" subtitle="Our recent work" />
+        <SectionHeading
+          title="Featured"
+          accent="Projects"
+          subtitle="Our recent work"
+        />
 
         {error && <p className="text-red-500 text-center">{error}</p>}
 
@@ -369,7 +514,10 @@ function PortfolioSection({ projects, loading, error }) {
         )}
 
         <div className="text-center mt-10">
-          <Link to="/portfolio" className="inline-flex items-center gap-2 text-emerald-700 font-semibold border px-6 py-3 rounded-xl bg-white">
+          <Link
+            to="/portfolio"
+            className="inline-flex items-center gap-2 text-emerald-700 font-semibold border px-6 py-3 rounded-xl bg-white"
+          >
             View All Projects <ArrowRight size={16} />
           </Link>
         </div>
@@ -379,7 +527,7 @@ function PortfolioSection({ projects, loading, error }) {
 }
 
 function TechSlider() {
-  const doubled = [...TECH_ITEMS, ...TECH_ITEMS];
+  const doubled = [...techItems, ...techItems];
   const trackRef = useRef(null);
   const animRef = useRef(null);
   const posRef = useRef(0);
@@ -400,15 +548,26 @@ function TechSlider() {
   return (
     <div
       className="overflow-hidden w-full py-2"
-      style={{ maskImage: "linear-gradient(to right, transparent, black 10%, black 90%, transparent)" }}
+      style={{
+        maskImage:
+          "linear-gradient(to right, transparent, black 10%, black 90%, transparent)",
+      }}
     >
       <div ref={trackRef} className="flex gap-15 w-max">
         {doubled.map((tech, i) => (
-          <div key={i} className="flex flex-col items-center gap-2.5 group cursor-pointer flex-shrink-0">
+          <div
+            key={i}
+            className="flex flex-col items-center gap-2.5 group cursor-pointer flex-shrink-0"
+          >
             <div className="w-16 h-16 rounded-2xl bg-white border border-gray-100 shadow-sm flex items-center justify-center group-hover:shadow-md group-hover:-translate-y-1.5 group-hover:border-emerald-200 transition-all duration-300">
-              <i className={`${tech.icon} text-4xl`} style={{ color: tech.color }} />
+              <i
+                className={`${tech.icon} text-4xl`}
+                style={{ color: tech.color }}
+              />
             </div>
-            <span className="text-xs text-gray-500 font-medium">{tech.name}</span>
+            <span className="text-xs text-gray-500 font-medium">
+              {tech.name}
+            </span>
           </div>
         ))}
       </div>
@@ -436,7 +595,11 @@ function BlogsSection({ blogs, loading, error }) {
   return (
     <section className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-6">
-        <SectionHeading title="Latest" accent="Blogs" subtitle="Insights and updates" />
+        <SectionHeading
+          title="Latest"
+          accent="Blogs"
+          subtitle="Insights and updates"
+        />
 
         {error && <p className="text-red-500 text-center">{error}</p>}
 
@@ -451,7 +614,10 @@ function BlogsSection({ blogs, loading, error }) {
         )}
 
         <div className="text-center mt-10">
-          <Link to="/blog" className="inline-flex items-center gap-2 text-emerald-700 font-semibold border px-6 py-3 rounded-xl bg-white">
+          <Link
+            to="/blog"
+            className="inline-flex items-center gap-2 text-emerald-700 font-semibold border px-6 py-3 rounded-xl bg-white"
+          >
             View All Blogs <ArrowRight size={16} />
           </Link>
         </div>
@@ -470,18 +636,20 @@ function ChairmanSection() {
             <div className="absolute bottom-0 left-0 w-48 h-48 bg-teal-400/6 rounded-full blur-[80px] pointer-events-none" />
             <div
               className="absolute inset-0 opacity-[0.03] pointer-events-none"
-              style={{ backgroundImage: `radial-gradient(circle at 1px 1px, #10b981 1px, transparent 0)`, backgroundSize: "24px 24px" }}
+              style={{
+                backgroundImage: `radial-gradient(circle at 1px 1px, #10b981 1px, transparent 0)`,
+                backgroundSize: "24px 24px",
+              }}
             />
 
             <div className="relative grid md:grid-cols-2">
               <div className="flex flex-col items-center justify-center p-10 md:border-r border-white/10">
                 <div className="relative">
                   <div className="w-52 h-52 rounded-2xl overflow-hidden border-2 border-emerald-400/20 shadow-xl">
-                    <img
+                    <LazyImage
                       src={chairpersonPhoto}
                       alt="Chairperson"
                       className="w-full h-full object-cover"
-                      onError={(e) => { e.target.src = "https://placehold.co/400x400/0f3b2c/white?text=Chairperson"; }}
                     />
                   </div>
                   <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center shadow-lg">
@@ -489,8 +657,12 @@ function ChairmanSection() {
                   </div>
                 </div>
                 <div className="mt-6 text-center">
-                  <h3 className="text-xl font-bold text-white">Biswo Shrestha</h3>
-                  <p className="text-emerald-400 text-sm font-medium mt-1">Chairperson, GorkhaSoft</p>
+                  <h3 className="text-xl font-bold text-white">
+                    Biswo Shrestha
+                  </h3>
+                  <p className="text-emerald-400 text-sm font-medium mt-1">
+                    Chairperson, GorkhaSoft
+                  </p>
                   <div className="flex justify-center gap-1.5 mt-3">
                     <span className="w-6 h-1 bg-emerald-500 rounded-full" />
                     <span className="w-2 h-1 bg-emerald-400/40 rounded-full" />
@@ -508,10 +680,19 @@ function ChairmanSection() {
                 </h2>
                 <div className="space-y-3 text-slate-300 text-sm leading-relaxed">
                   <p>Dear friends and valued clients of GorkhaSoft,</p>
-                  <p>It is with great pride that I address you as Chairperson. Our organization stands as a testament to the strength, resilience, and unity of our team.</p>
-                  <p>Our mission remains clear: to deliver outstanding digital solutions while empowering businesses through innovation, excellence, and sustainable development.</p>
+                  <p>
+                    It is with great pride that I address you as Chairperson.
+                    Our organization stands as a testament to the strength,
+                    resilience, and unity of our team.
+                  </p>
+                  <p>
+                    Our mission remains clear: to deliver outstanding digital
+                    solutions while empowering businesses through innovation,
+                    excellence, and sustainable development.
+                  </p>
                   <p className="italic text-emerald-300 border-l-2 border-emerald-500 pl-4">
-                    With warm regards and best wishes for continued growth and prosperity.
+                    With warm regards and best wishes for continued growth and
+                    prosperity.
                   </p>
                 </div>
                 <div className="mt-7 flex items-center gap-1.5 text-xs text-slate-500">
@@ -528,10 +709,19 @@ function ChairmanSection() {
 }
 
 // ── Main export ───────────────────────────────────────────────────
-
 export default function Home() {
-  const { data: projects, loading: pLoading, error: pError } = useFetch("portfolio/");
-  const { data: blogs,    loading: bLoading, error: bError }  = useFetch("blogs/");
+  // UI renders immediately (GOOD FOR LCP)
+  const {
+    data: projects = [],
+    loading: pLoading,
+    error: pError,
+  } = useFetch("portfolio/");
+
+  const {
+    data: blogs = [],
+    loading: bLoading,
+    error: bError,
+  } = useFetch("blogs/");
 
   return (
     <div className="bg-[#f8faf9] text-gray-900 font-sans">
@@ -539,9 +729,23 @@ export default function Home() {
       <ServicesSection />
       <ProceduresSection />
       <AboutSection />
-      <PortfolioSection projects={projects} loading={pLoading} error={pError} />
+
+      {/* Portfolio */}
+      <PortfolioSection
+        projects={projects}
+        loading={pLoading}
+        error={pError}
+      />
+
       <TechStackSection />
-      <BlogsSection blogs={blogs} loading={bLoading} error={bError} />
+
+      {/* Blogs */}
+      <BlogsSection
+        blogs={blogs}
+        loading={bLoading}
+        error={bError}
+      />
+
       <ChairmanSection />
     </div>
   );

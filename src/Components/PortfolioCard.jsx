@@ -1,21 +1,18 @@
-//eslint-disable-next-line no-unused-vars
-import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight, ExternalLink } from "lucide-react";
+import LazyImage from "./LazyLoading";
 
 export default function PortfolioCard({ project, index }) {
   const navigate = useNavigate();
 
   return (
-    <motion.article
-      initial={{ opacity: 0, y: 24 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.08 }}
-      whileHover={{ y: -5, boxShadow: "0 24px 48px -12px rgba(0,0,0,0.14)" }}
-      className="bg-white rounded-2xl border border-gray-100 shadow-[0_4px_16px_-4px_rgba(0,0,0,0.08)] overflow-hidden flex flex-col transition-shadow duration-300"
+      <article
+      className="bg-white rounded-2xl border border-gray-100 shadow-[0_4px_16px_-4px_rgba(0,0,0,0.08)] overflow-hidden flex flex-col
+                 opacity-0 animate-fadeUp hover:-translate-y-1 hover:shadow-xl transition-all duration-300"
+      style={{ animationDelay: `${index * 80}ms`, animationFillMode: "forwards" }}
     >
       <div className="h-48 overflow-hidden bg-gray-50">
-        <img
+        <LazyImage
           src={project.image}
           alt={project.title}
           className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
@@ -38,6 +35,6 @@ export default function PortfolioCard({ project, index }) {
           <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform duration-200" />
         </button>
       </div>
-    </motion.article>
+    </article>
   );
 }
