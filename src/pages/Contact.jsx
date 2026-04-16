@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import ReCAPTCHA from "react-google-recaptcha";
 import {
@@ -31,6 +31,7 @@ const COUNTRY_CODES = [
 
 export default function ContactForm() {
   const recaptchaRef = useRef(null);
+  const dropdownRef = useRef(null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -40,11 +41,12 @@ export default function ContactForm() {
     message: "",
   });
 
-  const [modalState, setModalState]     = useState(null);
-  const [loading, setLoading]           = useState(false);
+  const [modalState, setModalState] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [captchaToken, setCaptchaToken] = useState(null);
-  const [errors, setErrors]             = useState({});
-  const [touched, setTouched]           = useState({});
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
+  const [countryOpen, setCountryOpen] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -55,8 +57,6 @@ export default function ContactForm() {
   const handleBlur = (e) => {
     const { name } = e.target;
     setTouched((prev) => ({ ...prev, [name]: true }));
-    const fieldErrors = validateField(name, formData[name]);
-    if (fieldErrors) setErrors((prev) => ({ ...prev, [name]: fieldErrors }));
   };
 
   const validateField = (name, value) => {
@@ -64,22 +64,29 @@ export default function ContactForm() {
       case "name":
         if (!value.trim()) return "Name is required.";
         if (value.trim().length < 2) return "Name must be at least 2 characters.";
-        if (!/^[a-zA-Z\s\-']+$/.test(value.trim())) return "Name can only contain letters, spaces, hyphens, and apostrophes.";
+        if (!/^[a-zA-Z\s\-']+$/.test(value.trim()))
+          return "Name can only contain letters, spaces, hyphens, and apostrophes.";
         return null;
+
       case "email":
         if (!value.trim()) return "Email is required.";
-        if (!/^[\w.+\\-]+@[\w\\-]+\.[a-zA-Z]{2,}$/.test(value.trim())) return "Enter a valid email address.";
+        if (!/^[\w.+\-]+@[\w\-]+\.[a-zA-Z]{2,}$/.test(value.trim()))
+          return "Enter a valid email address.";
         return null;
+
       case "contact_number":
-        { if (!value) return null;
+        if (!value) return null;
         const digits = value.replace(/\D/g, "");
-        if (digits.length < 6 || digits.length > 15) return "Phone number must be 6–15 digits.";
-        return null; }
+        if (digits.length < 6 || digits.length > 15)
+          return "Phone number must be 6–15 digits.";
+        return null;
+
       case "message":
         if (!value.trim()) return "Message is required.";
         if (value.trim().length < 10) return "Message must be at least 10 characters.";
         if (value.trim().length > 2000) return "Message cannot exceed 2000 characters.";
         return null;
+
       default:
         return null;
     }
@@ -96,7 +103,13 @@ export default function ContactForm() {
   };
 
   const resetForm = () => {
-    setFormData({ name: "", email: "", country_code: "+977", contact_number: "", message: "" });
+    setFormData({
+      name: "",
+      email: "",
+      country_code: "+977",
+      contact_number: "",
+      message: "",
+    });
     setCaptchaToken(null);
     setErrors({});
     setTouched({});
@@ -105,13 +118,19 @@ export default function ContactForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Mark all fields touched on submit
-    setTouched({ name: true, email: true, contact_number: true, message: true });
+
+    setTouched({
+      name: true,
+      email: true,
+      contact_number: true,
+      message: true,
+    });
 
     if (!captchaToken) {
       setErrors((prev) => ({ ...prev, captcha: "Please complete the reCAPTCHA." }));
       return;
     }
+
     if (loading) return;
 
     const validationErrors = validate();
@@ -128,6 +147,7 @@ export default function ContactForm() {
         ...formData,
         captcha: captchaToken,
       });
+
       setModalState("success");
       resetForm();
     } catch (error) {
@@ -140,9 +160,25 @@ export default function ContactForm() {
 
   const closeModal = () => setModalState(null);
 
-  const inputClass = (field) =>
-    `flex items-center bg-green-50 rounded-xl px-3 py-3 transition-all
-     ${touched[field] && errors[field] ? "ring-1 ring-red-400" : ""}`;
+  const selectedCountry = COUNTRY_CODES.find(
+    (c) => c.code === formData.country_code
+  );
+
+  // CLOSE DROPDOWN ON OUTSIDE CLICK
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target)
+      ) {
+        setCountryOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <>
@@ -161,6 +197,7 @@ export default function ContactForm() {
             <p className="text-gray-600 text-lg">
               Got an idea, project, or just want to connect? We're always excited to hear from you.
             </p>
+
             <div className="space-y-4">
               <div className="flex items-center gap-3 text-gray-700">
                 <Mail className="text-green-600" /> support@gorkhasoft.com
@@ -177,99 +214,97 @@ export default function ContactForm() {
               Send a message 💬
             </h2>
 
-            <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+            <form onSubmit={handleSubmit} className="space-y-5">
 
-              {/* Name */}
-              <div className="space-y-1">
-                <div className={inputClass("name")}>
-                  <User className="text-green-500 mr-2 shrink-0" size={18} />
-                  <input
-                    type="text" name="name" placeholder="Your Name"
-                    value={formData.name} onChange={handleChange} onBlur={handleBlur}
-                    className="w-full outline-none bg-transparent"
-                  />
-                </div>
-                {touched.name && errors.name && (
-                  <p className="text-red-500 text-xs pl-1">{errors.name}</p>
-                )}
+              {/* NAME */}
+              <div className="flex items-center bg-green-50 rounded-xl px-3 py-3">
+                <User className="text-green-500 mr-2" size={18} />
+                <input
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  placeholder="Your Name"
+                  className="w-full outline-none bg-transparent"
+                />
               </div>
 
-              {/* Email */}
-              <div className="space-y-1">
-                <div className={inputClass("email")}>
-                  <Mail className="text-green-500 mr-2 shrink-0" size={18} />
-                  <input
-                    type="email" name="email" placeholder="Your Email"
-                    value={formData.email} onChange={handleChange} onBlur={handleBlur}
-                    className="w-full outline-none bg-transparent"
-                  />
-                </div>
-                {touched.email && errors.email && (
-                  <p className="text-red-500 text-xs pl-1">{errors.email}</p>
-                )}
+              {/* EMAIL */}
+              <div className="flex items-center bg-green-50 rounded-xl px-3 py-3">
+                <Mail className="text-green-500 mr-2" size={18} />
+                <input
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  placeholder="Your Email"
+                  className="w-full outline-none bg-transparent"
+                />
               </div>
 
-              {/* Phone */}
-              <div className="space-y-1">
-                <div className="flex gap-2">
+              {/* PHONE + DROPDOWN */}
+              <div className="flex gap-2">
 
-                  {/* Country code dropdown */}
-                  <div className="relative flex items-center bg-green-50 rounded-xl px-3 py-3 gap-1 w-2/5">
-                    <Earth className="text-green-500 shrink-0" size={16} />
-                    <select
-                      name="country_code"
-                      value={formData.country_code}
-                      onChange={handleChange}
-                      className="w-full outline-none bg-transparent text-sm appearance-none cursor-pointer pr-5"
-                    >
+                <div className="relative w-2/5" ref={dropdownRef}>
+                  <button
+                    type="button"
+                    onClick={() => setCountryOpen((prev) => !prev)}
+                    className="w-full flex items-center justify-between bg-green-50 rounded-xl px-3 py-3 text-sm shadow-sm"
+                  >
+                    <span className="truncate">{selectedCountry?.label}</span>
+                    <ChevronDown size={16} className="text-green-500" />
+                  </button>
+
+                  {countryOpen && (
+                    <div className="absolute z-50 mt-2 w-full max-h-60 overflow-y-auto bg-white rounded-xl shadow-xl">
                       {COUNTRY_CODES.map((c) => (
-                        <option key={c.code} value={c.code}>{c.label}</option>
+                        <div
+                          key={c.code}
+                          onClick={() => {
+                            setFormData((prev) => ({
+                              ...prev,
+                              country_code: c.code,
+                            }));
+                            setCountryOpen(false);
+                          }}
+                          className="px-3 py-2 text-sm hover:bg-green-50 cursor-pointer"
+                        >
+                          {c.label}
+                        </div>
                       ))}
-                    </select>
-                    <ChevronDown className="text-green-500 absolute right-2 pointer-events-none shrink-0" size={14} />
-                  </div>
-
-                  {/* Number input */}
-                  <div className={`flex items-center bg-green-50 rounded-xl px-3 py-3 flex-1
-                    ${touched.contact_number && errors.contact_number ? "ring-1 ring-red-400" : ""}`}>
-                    <Phone className="text-green-500 mr-2 shrink-0" size={18} />
-                    <input
-                      type="text" name="contact_number" placeholder="Phone Number"
-                      value={formData.contact_number} onChange={handleChange} onBlur={handleBlur}
-                      maxLength={15}
-                      className="w-full outline-none bg-transparent"
-                    />
-                  </div>
+                    </div>
+                  )}
                 </div>
-                {touched.contact_number && errors.contact_number && (
-                  <p className="text-red-500 text-xs pl-1">{errors.contact_number}</p>
-                )}
-              </div>
 
-              {/* Message */}
-              <div className="space-y-1">
-                <div className={`flex items-start bg-green-50 rounded-xl px-3 py-3
-                  ${touched.message && errors.message ? "ring-1 ring-red-400" : ""}`}>
-                  <MessageSquare className="text-green-500 mr-2 mt-1 shrink-0" size={18} />
-                  <textarea
-                    name="message" rows="4" placeholder="Your Message..."
-                    value={formData.message} onChange={handleChange} onBlur={handleBlur}
-                    className="w-full outline-none bg-transparent resize-none"
+                <div className="flex items-center bg-green-50 rounded-xl px-3 py-3 flex-1">
+                  <Phone className="text-green-500 mr-2" size={18} />
+                  <input
+                    name="contact_number"
+                    value={formData.contact_number}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    placeholder="Phone Number"
+                    className="w-full outline-none bg-transparent"
                   />
                 </div>
-                <div className="flex justify-between">
-                  {touched.message && errors.message
-                    ? <p className="text-red-500 text-xs pl-1">{errors.message}</p>
-                    : <span />
-                  }
-                  <p className={`text-xs ${formData.message.length > 2000 ? "text-red-500" : "text-gray-400"}`}>
-                    {formData.message.length}/2000
-                  </p>
-                </div>
               </div>
 
-              {/* reCAPTCHA */}
-              <div className="flex flex-col items-center gap-1">
+              {/* MESSAGE */}
+              <div className="flex items-start bg-green-50 rounded-xl px-3 py-3">
+                <MessageSquare className="text-green-500 mr-2 mt-1" size={18} />
+                <textarea
+                  name="message"
+                  value={formData.message}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  rows="4"
+                  placeholder="Your Message..."
+                  className="w-full outline-none bg-transparent resize-none"
+                />
+              </div>
+
+              {/* CAPTCHA */}
+              <div className="flex justify-start">
                 <ReCAPTCHA
                   ref={recaptchaRef}
                   sitekey="6LdYB7osAAAAAO3IkLs_iWHtjBaw48NBy4G61mNe"
@@ -278,78 +313,23 @@ export default function ContactForm() {
                     setErrors((prev) => ({ ...prev, captcha: "" }));
                   }}
                 />
-                {errors.captcha && (
-                  <p className="text-red-500 text-xs">{errors.captcha}</p>
-                )}
               </div>
 
+              {errors.captcha && (
+                <p className="text-red-500 text-xs">{errors.captcha}</p>
+              )}
+
               <button
-                type="submit" disabled={loading || !captchaToken}
-                className="w-full py-3 rounded-xl font-semibold text-white
-                bg-gradient-to-r from-green-500 to-emerald-600
-                hover:scale-105 transition-all duration-300 shadow-md disabled:opacity-50">
-                {loading ? "Sending..." : "Send Message 🌿"}
+                type="submit"
+                className="w-full py-3 rounded-xl font-semibold text-white bg-gradient-to-r from-green-500 to-emerald-600"
+              >
+                Send Message 🌿
               </button>
 
             </form>
           </div>
         </div>
       </div>
-
-      {/* SENDING MODAL */}
-      {modalState === "sending" && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl max-w-sm w-full shadow-2xl p-8 text-center">
-            <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
-              <Loader2 className="h-9 w-9 text-green-600 animate-spin" />
-            </div>
-            <h3 className="text-xl font-bold mb-2">Sending your message...</h3>
-            <p className="text-gray-500 text-sm">Please wait a moment.</p>
-          </div>
-        </div>
-      )}
-
-      {/* SUCCESS MODAL */}
-      {modalState === "success" && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/50 backdrop-blur-sm" onClick={closeModal}>
-          <div className="relative bg-white rounded-2xl max-w-md w-full shadow-2xl" onClick={(e) => e.stopPropagation()}>
-            <button onClick={closeModal} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
-              <X size={20} />
-            </button>
-            <div className="p-6 text-center">
-              <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
-                <CheckCircle className="h-10 w-10 text-green-600" />
-              </div>
-              <h3 className="text-2xl font-bold mb-2">Message Sent! 🎉</h3>
-              <p className="text-gray-600 mb-6">Thank you for reaching out! We'll get back to you soon.</p>
-              <button onClick={closeModal} className="w-full py-3 rounded-xl font-semibold text-white bg-gradient-to-r from-green-500 to-emerald-600">
-                Got it, thanks!
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ERROR MODAL */}
-      {modalState === "error" && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/50 backdrop-blur-sm" onClick={closeModal}>
-          <div className="relative bg-white rounded-2xl max-w-md w-full shadow-2xl" onClick={(e) => e.stopPropagation()}>
-            <button onClick={closeModal} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
-              <X size={20} />
-            </button>
-            <div className="p-6 text-center">
-              <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4">
-                <XCircle className="h-10 w-10 text-red-500" />
-              </div>
-              <h3 className="text-2xl font-bold mb-2">Something went wrong</h3>
-              <p className="text-gray-600 mb-6">Failed to send your message. Please check your connection and try again.</p>
-              <button onClick={closeModal} className="w-full py-3 rounded-xl font-semibold text-white bg-gradient-to-r from-red-500 to-red-600">
-                Try again
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 }
