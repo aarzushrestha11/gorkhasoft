@@ -3,7 +3,7 @@ import { Menu, X } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 /* eslint-disable no-unused-vars */
 import { motion, AnimatePresence } from "framer-motion";
-
+import gslogo1 from "../assets/gslogo1.png"; // ✅ Import the logo
 
 const links = [
   { to: "/",          label: "Home"      },
@@ -44,11 +44,13 @@ export default function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
 
-        {/* LOGO */}
+        {/* LOGO with Image */}
         <Link to="/" className="flex items-center gap-2 group">
-          <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/30 group-hover:scale-110 transition-transform duration-200">
-            <span className="text-white font-black text-sm">G</span>
-          </div>
+          <img 
+            src={gslogo1} 
+            alt="GorkhaSoft Logo" 
+            className="w-8 h-8 rounded-lg object-cover group-hover:scale-110 transition-transform duration-200"
+          />
           <span
             className={`font-bold text-xl tracking-tight transition-colors ${
               scrolled ? "text-white" : "text-black"
@@ -100,23 +102,7 @@ export default function Navbar() {
           className="md:hidden text-white p-2 rounded-lg hover:bg-white/10 transition-colors"
           onClick={() => setOpen(!open)}
         >
-          <AnimatePresence initial={false}>
-            {links.map((l, i) => (
-            <motion.div key={l.to}>
-              <Link
-                to={l.to}
-                onClick={() => setOpen(false)} // ✅ THIS FIXES YOUR ISSUE
-                className={`block px-4 py-3 rounded-xl text-sm font-medium ${
-                  isActive(l.to)
-                    ? "bg-emerald-500/15 text-emerald-400"
-                    : "text-white/80 hover:bg-white/5"
-                }`}
-              >
-                {l.label}
-              </Link>
-            </motion.div>
-          ))}
-          </AnimatePresence>
+          {open ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
 
@@ -140,6 +126,7 @@ export default function Navbar() {
                 >
                   <Link
                     to={l.to}
+                    onClick={() => setOpen(false)}
                     className={`block px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
                       isActive(l.to)
                         ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20"
@@ -158,6 +145,7 @@ export default function Navbar() {
               >
                 <Link
                   to="/about"
+                  onClick={() => setOpen(false)}
                   className="block bg-emerald-500 hover:bg-emerald-400 text-white px-4 py-3 rounded-xl text-sm font-semibold text-center transition-colors"
                 >
                   Get a Quote
