@@ -1,37 +1,19 @@
-import { useState, useRef, useEffect } from "react";
+/* eslint-disable no-unused-vars */
+import { useState, useRef } from "react";
 import axios from "axios";
 import ReCAPTCHA from "react-google-recaptcha";
-import {
-  Mail, Phone, User, MessageSquare,
-  CheckCircle, XCircle, X, Loader2, Earth, ChevronDown,
-} from "lucide-react";
+import { motion } from "framer-motion";
+import { Toaster, toast } from "react-hot-toast";
 
-const COUNTRY_CODES = [
-  { code: "+977", label: "🇳🇵 Nepal (+977)" },
-  { code: "+1",   label: "🇺🇸 USA / Canada (+1)" },
-  { code: "+44",  label: "🇬🇧 UK (+44)" },
-  { code: "+91",  label: "🇮🇳 India (+91)" },
-  { code: "+61",  label: "🇦🇺 Australia (+61)" },
-  { code: "+49",  label: "🇩🇪 Germany (+49)" },
-  { code: "+33",  label: "🇫🇷 France (+33)" },
-  { code: "+81",  label: "🇯🇵 Japan (+81)" },
-  { code: "+86",  label: "🇨🇳 China (+86)" },
-  { code: "+971", label: "🇦🇪 UAE (+971)" },
-  { code: "+65",  label: "🇸🇬 Singapore (+65)" },
-  { code: "+82",  label: "🇰🇷 South Korea (+82)" },
-  { code: "+55",  label: "🇧🇷 Brazil (+55)" },
-  { code: "+27",  label: "🇿🇦 South Africa (+27)" },
-  { code: "+20",  label: "🇪🇬 Egypt (+20)" },
-  { code: "+234", label: "🇳🇬 Nigeria (+234)" },
-  { code: "+7",   label: "🇷🇺 Russia (+7)" },
-  { code: "+34",  label: "🇪🇸 Spain (+34)" },
-  { code: "+39",  label: "🇮🇹 Italy (+39)" },
-  { code: "+31",  label: "🇳🇱 Netherlands (+31)" },
-];
+import {
+  Mail,
+  Phone,
+  User,
+  MessageSquare,
+} from "lucide-react";
 
 export default function ContactForm() {
   const recaptchaRef = useRef(null);
-  const dropdownRef = useRef(null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -41,65 +23,76 @@ export default function ContactForm() {
     message: "",
   });
 
-  const [modalState, setModalState] = useState(null);
   const [loading, setLoading] = useState(false);
   const [captchaToken, setCaptchaToken] = useState(null);
+
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
-  const [countryOpen, setCountryOpen] = useState(false);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
-  };
-
-  const handleBlur = (e) => {
-    const { name } = e.target;
-    setTouched((prev) => ({ ...prev, [name]: true }));
-  };
-
+  // 🔍 VALIDATION
   const validateField = (name, value) => {
     switch (name) {
       case "name":
-        if (!value.trim()) return "Name is required.";
-        if (value.trim().length < 2) return "Name must be at least 2 characters.";
-        if (!/^[a-zA-Z\s\-']+$/.test(value.trim()))
-          return "Name can only contain letters, spaces, hyphens, and apostrophes.";
-        return null;
+        if (!value.trim()) return "Name is required";
+        return "";
 
       case "email":
-        if (!value.trim()) return "Email is required.";
-        if (!/^[\w.+\-]+@[\w\-]+\.[a-zA-Z]{2,}$/.test(value.trim()))
-          return "Enter a valid email address.";
-        return null;
-
-      case "contact_number":
-        if (!value) return null;
-        const digits = value.replace(/\D/g, "");
-        if (digits.length < 6 || digits.length > 15)
-          return "Phone number must be 6–15 digits.";
-        return null;
+        if (!value.trim()) return "Email is required";
+        if (!/\S+@\S+\.\S+/.test(value)) return "Enter a valid email";
+        return "";
 
       case "message":
-        if (!value.trim()) return "Message is required.";
-        if (value.trim().length < 10) return "Message must be at least 10 characters.";
-        if (value.trim().length > 2000) return "Message cannot exceed 2000 characters.";
-        return null;
+        if (!value.trim()) return "Message is required";
+        if (value.trim().length < 10)
+          return "Message must be at least 10 characters";
+        return "";
 
       default:
-        return null;
+        return "";
     }
   };
 
-  const validate = () => {
-    const fields = ["name", "email", "contact_number", "message"];
+  const validateAll = () => {
     const newErrors = {};
-    fields.forEach((f) => {
-      const err = validateField(f, formData[f]);
-      if (err) newErrors[f] = err;
+    Object.keys(formData).forEach((key) => {
+      newErrors[key] = validateField(key, formData[key]);
     });
+    setErrors(newErrors);
     return newErrors;
+  };
+
+  // ✏️ CHANGE
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    setErrors((prev) => ({
+      ...prev,
+      [name]: validateField(name, value),
+    }));
+  };
+
+  // 👆 BLUR
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+
+    setTouched((prev) => ({
+      ...prev,
+      [name]: true,
+    }));
+
+    setErrors((prev) => ({
+      ...prev,
+      [name]: validateField(name, value),
+    }));
+  };
+
+  const handleCaptchaChange = (token) => {
+    setCaptchaToken(token);
   };
 
   const resetForm = () => {
@@ -110,225 +103,195 @@ export default function ContactForm() {
       contact_number: "",
       message: "",
     });
-    setCaptchaToken(null);
+
     setErrors({});
     setTouched({});
-    if (recaptchaRef.current) recaptchaRef.current.reset();
+    setCaptchaToken(null);
+
+    if (recaptchaRef.current) {
+      recaptchaRef.current.reset();
+    }
   };
 
+  // 🚀 SUBMIT
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    setTouched({
-      name: true,
-      email: true,
-      contact_number: true,
-      message: true,
-    });
-
     if (!captchaToken) {
-      setErrors((prev) => ({ ...prev, captcha: "Please complete the reCAPTCHA." }));
+      toast.error("Please complete the reCAPTCHA");
+      return;
+    }
+
+    const validationErrors = validateAll();
+
+    const hasErrors = Object.values(validationErrors).some((err) => err);
+
+    if (hasErrors) {
+      toast.error("Please fix the errors in the form");
       return;
     }
 
     if (loading) return;
 
-    const validationErrors = validate();
-    if (Object.keys(validationErrors).length) {
-      setErrors(validationErrors);
-      return;
-    }
-
     setLoading(true);
-    setModalState("sending");
 
     try {
-      await axios.post("http://127.0.0.1:8000/api/contact/", {
-        ...formData,
-        captcha: captchaToken,
-      });
+      await toast.promise(
+        axios.post("http://127.0.0.1:8000/api/contact/", {
+          ...formData,
+          captcha: captchaToken,
+        }),
+        {
+          loading: "Sending message...",
+          success: "Message sent successfully 🎉",
+          error: (err) => {
+            if (err.response?.data?.errors) {
+              return Object.values(err.response.data.errors)[0];
+            }
+            return err.response?.data?.message || "Something went wrong";
+          },
+        }
+      );
 
-      setModalState("success");
       resetForm();
-    } catch (error) {
-      console.error(error);
-      setModalState("error");
+
     } finally {
       setLoading(false);
     }
   };
 
-  const closeModal = () => setModalState(null);
-
-  const selectedCountry = COUNTRY_CODES.find(
-    (c) => c.code === formData.country_code
-  );
-
-  // CLOSE DROPDOWN ON OUTSIDE CLICK
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target)
-      ) {
-        setCountryOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () =>
-      document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
   return (
     <>
-      <div className="relative min-h-screen bg-gradient-to-br from-green-50 via-white to-green-100 flex items-center justify-center px-4 py-16 overflow-hidden">
+      <Toaster position="top-right" />
 
-        <div className="absolute w-72 h-72 bg-green-300 rounded-full blur-3xl opacity-30 top-[-50px] left-[-50px]" />
-        <div className="absolute w-80 h-80 bg-emerald-300 rounded-full blur-3xl opacity-30 bottom-[-60px] right-[-40px]" />
-
-        <div className="relative z-10 max-w-6xl w-full grid md:grid-cols-2 gap-10 items-center">
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="relative min-h-screen bg-gradient-to-br from-green-50 via-white to-green-100 flex items-center justify-center px-4 py-16"
+      >
+        <div className="max-w-6xl w-full grid md:grid-cols-2 gap-10">
 
           {/* LEFT */}
-          <div className="space-y-6">
-            <h1 className="text-4xl md:text-5xl font-extrabold text-green-800">
-              Let's Talk 👋
+          <div>
+            <h1 className="text-4xl font-bold text-green-800">
+              Let’s Talk 👋
             </h1>
-            <p className="text-gray-600 text-lg">
-              Got an idea, project, or just want to connect? We're always excited to hear from you.
-            </p>
-
-            <div className="space-y-4">
-              <div className="flex items-center gap-3 text-gray-700">
-                <Mail className="text-green-600" /> support@gorkhasoft.com
-              </div>
-              <div className="flex items-center gap-3 text-gray-700">
-                <Phone className="text-green-600" /> +977 98XXXXXXXX
-              </div>
-            </div>
           </div>
 
           {/* FORM */}
           <div className="bg-white p-8 rounded-3xl shadow-xl">
-            <h2 className="text-2xl font-bold text-green-800 mb-6 text-center">
-              Send a message 💬
-            </h2>
-
             <form onSubmit={handleSubmit} className="space-y-5">
 
               {/* NAME */}
-              <div className="flex items-center bg-green-50 rounded-xl px-3 py-3">
-                <User className="text-green-500 mr-2" size={18} />
-                <input
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  placeholder="Your Name"
-                  className="w-full outline-none bg-transparent"
-                />
+              <div>
+                <div className={`flex items-center bg-green-50 rounded-xl px-3 py-3 ${
+                  touched.name && errors.name ? "border border-red-500" : ""
+                }`}>
+                  <User className="text-green-500 mr-2" size={18} />
+                  <input
+                    type="text"
+                    name="name"
+                    placeholder="Your Name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    className="w-full outline-none bg-transparent"
+                  />
+                </div>
+                {touched.name && errors.name && (
+                  <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+                )}
               </div>
 
               {/* EMAIL */}
-              <div className="flex items-center bg-green-50 rounded-xl px-3 py-3">
-                <Mail className="text-green-500 mr-2" size={18} />
-                <input
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  placeholder="Your Email"
-                  className="w-full outline-none bg-transparent"
-                />
-              </div>
-
-              {/* PHONE + DROPDOWN */}
-              <div className="flex gap-2">
-
-                <div className="relative w-2/5" ref={dropdownRef}>
-                  <button
-                    type="button"
-                    onClick={() => setCountryOpen((prev) => !prev)}
-                    className="w-full flex items-center justify-between bg-green-50 rounded-xl px-3 py-3 text-sm shadow-sm"
-                  >
-                    <span className="truncate">{selectedCountry?.label}</span>
-                    <ChevronDown size={16} className="text-green-500" />
-                  </button>
-
-                  {countryOpen && (
-                    <div className="absolute z-50 mt-2 w-full max-h-60 overflow-y-auto bg-white rounded-xl shadow-xl">
-                      {COUNTRY_CODES.map((c) => (
-                        <div
-                          key={c.code}
-                          onClick={() => {
-                            setFormData((prev) => ({
-                              ...prev,
-                              country_code: c.code,
-                            }));
-                            setCountryOpen(false);
-                          }}
-                          className="px-3 py-2 text-sm hover:bg-green-50 cursor-pointer"
-                        >
-                          {c.label}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex items-center bg-green-50 rounded-xl px-3 py-3 flex-1">
-                  <Phone className="text-green-500 mr-2" size={18} />
+              <div>
+                <div className={`flex items-center bg-green-50 rounded-xl px-3 py-3 ${
+                  touched.email && errors.email ? "border border-red-500" : ""
+                }`}>
+                  <Mail className="text-green-500 mr-2" size={18} />
                   <input
-                    name="contact_number"
-                    value={formData.contact_number}
+                    type="email"
+                    name="email"
+                    placeholder="Your Email"
+                    value={formData.email}
                     onChange={handleChange}
                     onBlur={handleBlur}
+                    className="w-full outline-none bg-transparent"
+                  />
+                </div>
+                {touched.email && errors.email && (
+                  <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+                )}
+              </div>
+
+              {/* PHONE */}
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  name="country_code"
+                  value={formData.country_code}
+                  onChange={handleChange}
+                  className="w-1/4 bg-green-50 rounded-xl px-3 py-3 outline-none"
+                />
+                <div className="flex items-center bg-green-50 rounded-xl px-3 py-3 w-3/4">
+                  <Phone className="text-green-500 mr-2" size={18} />
+                  <input
+                    type="text"
+                    name="contact_number"
                     placeholder="Phone Number"
+                    value={formData.contact_number}
+                    onChange={handleChange}
                     className="w-full outline-none bg-transparent"
                   />
                 </div>
               </div>
 
               {/* MESSAGE */}
-              <div className="flex items-start bg-green-50 rounded-xl px-3 py-3">
-                <MessageSquare className="text-green-500 mr-2 mt-1" size={18} />
-                <textarea
-                  name="message"
-                  value={formData.message}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  rows="4"
-                  placeholder="Your Message..."
-                  className="w-full outline-none bg-transparent resize-none"
-                />
+              <div>
+                <div className={`flex items-start bg-green-50 rounded-xl px-3 py-3 ${
+                  touched.message && errors.message ? "border border-red-500" : ""
+                }`}>
+                  <MessageSquare className="text-green-500 mr-2 mt-1" size={18} />
+                  <textarea
+                    name="message"
+                    rows="4"
+                    placeholder="Your Message..."
+                    value={formData.message}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    className="w-full outline-none bg-transparent resize-none"
+                  />
+                </div>
+                {touched.message && errors.message && (
+                  <p className="text-red-500 text-sm mt-1">{errors.message}</p>
+                )}
               </div>
 
+              {/* CAPTCHA */}
               <div className="flex justify-start">
                 <ReCAPTCHA
                   ref={recaptchaRef}
                   sitekey="6LdYB7osAAAAAO3IkLs_iWHtjBaw48NBy4G61mNe"
-                  onChange={(token) => {
-                    setCaptchaToken(token);
-                    setErrors((prev) => ({ ...prev, captcha: "" }));
-                  }}
+                  onChange={handleCaptchaChange}
                 />
               </div>
 
-              {errors.captcha && (
-                <p className="text-red-500 text-xs">{errors.captcha}</p>
-              )}
-
+              {/* BUTTON */}
               <button
                 type="submit"
-                className="w-full py-3 rounded-xl font-semibold text-white bg-gradient-to-r from-green-500 to-emerald-600"
+                disabled={loading || !captchaToken}
+                className="w-full py-3 rounded-xl font-semibold text-white 
+                bg-gradient-to-r from-green-500 to-emerald-600 
+                hover:scale-105 transition-all duration-300 shadow-md disabled:opacity-50"
               >
-                Send Message 🌿
+                {loading ? "Sending..." : "Send Message 🌿"}
               </button>
 
             </form>
           </div>
         </div>
-      </div>
+      </motion.div>
     </>
   );
 }

@@ -468,15 +468,20 @@ function AboutSection() {
 function PortfolioSection({ projects, loading, error }) {
   const [page, setPage] = useState(0);
   const perPage = 3;
-  const totalPages = Math.ceil(projects.length / perPage);
-
-  // Ensure page is always valid (no need for useEffect)
-  const safePage = Math.min(page, Math.max(0, totalPages - 1));
-
-  const visibleProjects = projects.slice(
-    safePage * perPage,
-    safePage * perPage + perPage,
-  );
+  
+  // Handle both array and paginated response
+  let projectsArray = [];
+  if (Array.isArray(projects)) {
+    projectsArray = projects;
+  } else if (projects && projects.results && Array.isArray(projects.results)) {
+    projectsArray = projects.results;
+  } else {
+    projectsArray = [];
+  }
+  
+  const totalPages = Math.ceil(projectsArray.length / perPage);
+  const safePage = totalPages === 0 ? 0 : Math.min(page, totalPages - 1);
+  const visibleProjects = projectsArray.slice(safePage * perPage, safePage * perPage + perPage);
 
   return (
     <section className="py-24 bg-[#f0f7f4]">
@@ -490,33 +495,41 @@ function PortfolioSection({ projects, loading, error }) {
         {error && <p className="text-red-500 text-center">{error}</p>}
 
         {loading ? (
-          <p className="text-center">Loading...</p>
+          <div className="flex justify-center items-center h-64">
+            <div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : projectsArray.length === 0 ? (
+          <p className="text-gray-500 text-center">No projects found.</p>
         ) : (
-          <div className="grid md:grid-cols-3 gap-6">
-            {visibleProjects.map((project, i) => (
-              <PortfolioCard key={project.id} project={project} index={i} />
-            ))}
-          </div>
-        )}
+          <>
+            <div className="grid md:grid-cols-3 gap-6">
+              {visibleProjects.map((project, i) => (
+                <PortfolioCard key={project.id} project={project} index={i} />
+              ))}
+            </div>
 
-        {totalPages > 1 && (
-          <div className="flex justify-center mt-10 gap-2">
-            {Array.from({ length: totalPages }).map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setPage(i)}
-                className={`px-3 py-1 rounded ${page === i ? "bg-emerald-600 text-white" : "bg-white border"}`}
-              >
-                {i + 1}
-              </button>
-            ))}
-          </div>
+            {totalPages > 1 && (
+              <div className="flex justify-center mt-10 gap-2">
+                {Array.from({ length: totalPages }).map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setPage(i)}
+                    className={`px-3 py-1 rounded ${
+                      page === i ? "bg-emerald-600 text-white" : "bg-white border"
+                    }`}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+              </div>
+            )}
+          </>
         )}
 
         <div className="text-center mt-10">
           <Link
             to="/portfolio"
-            className="inline-flex items-center gap-2 text-emerald-700 font-semibold border px-6 py-3 rounded-xl bg-white"
+            className="inline-flex items-center gap-2 text-emerald-700 font-semibold border px-6 py-3 rounded-xl bg-white hover:bg-emerald-50 transition-colors"
           >
             View All Projects <ArrowRight size={16} />
           </Link>
@@ -525,7 +538,6 @@ function PortfolioSection({ projects, loading, error }) {
     </section>
   );
 }
-
 function TechSlider() {
   const doubled = [...techItems, ...techItems];
   const trackRef = useRef(null);
