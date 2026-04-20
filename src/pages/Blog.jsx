@@ -23,6 +23,10 @@ const Blog = () => {
   const [error,   setError]   = useState(null);
 
   useEffect(() => {
+    document.title = "Blog - GorkhaSoft";
+  }, []);
+
+  useEffect(() => {
     fetchBlogs();
   }, []);
 

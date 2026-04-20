@@ -1,8 +1,8 @@
-/* eslint-disable no-unused-vars */
-import React, { useRef } from "react";
+
+import React, { useRef, useEffect } from "react";
 import { motion, useInView } from "framer-motion";
 
-// Icons
+
 import Code from "lucide-react/dist/esm/icons/code";
 import Globe from "lucide-react/dist/esm/icons/globe";
 import Smartphone from "lucide-react/dist/esm/icons/smartphone";
@@ -15,7 +15,6 @@ import CheckCircle from "lucide-react/dist/esm/icons/check-circle";
 import Navbar from "../Components/Navbar";
 import Footer from "../Components/Footer";
 
-// ── Animations (same as Home) ─────────────────────────────
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
@@ -73,7 +72,6 @@ function SectionHeading({ title, accent, subtitle }) {
   );
 }
 
-// ── Data ─────────────────────────────────────────────
 const services = [
   {
     icon: <Code size={36} />,
@@ -136,13 +134,18 @@ const processSteps = [
   },
 ];
 
-// ── Page ─────────────────────────────────────────────
+
 export default function Services() {
+ 
+  useEffect(() => {
+    document.title = "Services - GorkhaSoft";
+  }, []);
+
   return (
     <div className="bg-slate-50 text-gray-800">
       <Navbar />
 
-      {/* HERO */}
+
       <section className="bg-gradient-to-r from-[#0f3b2c] to-emerald-600 text-white py-24 text-center">
         <motion.div
           initial="hidden"
@@ -160,7 +163,7 @@ export default function Services() {
         </motion.div>
       </section>
 
-      {/* SERVICES */}
+   
       <section className="py-24 max-w-7xl mx-auto px-6">
         <SectionHeading
           title="What We"
@@ -200,7 +203,7 @@ export default function Services() {
         </motion.div>
       </section>
 
-      {/* PROCESS */}
+    
       <section className="py-24 bg-white">
         <SectionHeading
           title="Our Working"
@@ -231,15 +234,14 @@ export default function Services() {
         </motion.div>
       </section>
 
-      {/* CTA */}
       <section className="py-24 bg-emerald-50">
         <AnimSection>
           <div className="max-w-3xl mx-auto text-center bg-white p-10 rounded-2xl shadow-md">
             <h3 className="text-2xl font-bold mb-3">
-              Let’s Build Something Great
+              Let's Build Something Great
             </h3>
             <p className="text-gray-600 mb-6">
-              Have an idea? We’ll turn it into a powerful digital product.
+              Have an idea? We'll turn it into a powerful digital product.
             </p>
 
             <button className="bg-[#0f3b2c] text-white px-6 py-3 rounded-xl inline-flex items-center gap-2 hover:bg-emerald-700 transition">
@@ -249,7 +251,7 @@ export default function Services() {
         </AnimSection>
       </section>
 
-  
+      <Footer />
     </div>
   );
 }

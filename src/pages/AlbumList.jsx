@@ -1,5 +1,5 @@
-// eslint-disable react-hooks/exhaustive-deps
-/* eslint-disable no-unused-vars */
+
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import useFetch from "../hooks/useFetch";
@@ -30,6 +30,17 @@ function AnimSection({ children, className = "", delay = 0 }) {
 
 export default function AlbumList() {
   const { data: albums, loading, error } = useFetch("/albums/");
+
+
+  useEffect(() => {
+    if (loading) {
+      document.title = "Loading Gallery - GorkhaSoft";
+    } else if (error) {
+      document.title = "Gallery Error - GorkhaSoft";
+    } else {
+      document.title = "Gallery - GorkhaSoft";
+    }
+  }, [loading, error]);
 
   if (loading) {
     return (

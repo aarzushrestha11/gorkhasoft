@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import useFetch from "../hooks/useFetch";
-// ✅ Import each icon from its own file
+
 import Code from "lucide-react/dist/esm/icons/code";
 import Globe from "lucide-react/dist/esm/icons/globe";
 import Headphones from "lucide-react/dist/esm/icons/headphones";
@@ -13,7 +13,7 @@ import Calendar from "lucide-react/dist/esm/icons/calendar";
 import PenTool from "lucide-react/dist/esm/icons/pen-tool";
 import ExternalLink from "lucide-react/dist/esm/icons/external-link";
 import { Link } from "react-router-dom";
-//eslint-disable-next-line no-unused-vars
+
 import { motion, useInView } from "framer-motion";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import chairpersonPhoto from "../assets/chairperson.webp";
@@ -22,7 +22,7 @@ import BlogCard from "../Components/BlogCard";
 import LazyImage from "../Components/LazyLoading";
 
 
-// ── Animation variants ────────────────────────────────────────────
+
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -34,7 +34,7 @@ const stagger = (delay = 0.1) => ({
   visible: { transition: { staggerChildren: delay } },
 });
 
-// ── Shared components ─────────────────────────────────────────────
+
 
 function AnimSection({ children, className = "", delay = 0 }) {
   return (
@@ -91,7 +91,6 @@ function SectionHeading({ label, title, accent, subtitle }) {
   );
 }
 
-// ── Static data ───────────────────────────────────────────────────
 
 const SERVICE_ITEMS = [
   {
@@ -192,7 +191,6 @@ const HERO_STATS = [
   ["100%", "Client Satisfaction"],
 ];
 
-// ── Section components ────────────────────────────────────────────
 
 function HeroSection() {
   return (
@@ -722,7 +720,11 @@ function ChairmanSection() {
 
 // ── Main export ───────────────────────────────────────────────────
 export default function Home() {
-  // UI renders immediately (GOOD FOR LCP)
+  useEffect(() => {
+    document.title = "Home - GorkhaSoft";
+  }, []);
+
+
   const {
     data: projects = [],
     loading: pLoading,

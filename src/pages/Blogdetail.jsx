@@ -21,7 +21,7 @@ export default function BlogDetail() {
     const fetchPost = async () => {
       try {
         // Fetch single blog by slug: /api/blogs/<slug>/
-        const res = await API.get(`blogs/${slug}/`);
+        const res = await API.get(`blogs/${slug}`);
         setPost(res.data);
         setError(null);
       } catch (err) {

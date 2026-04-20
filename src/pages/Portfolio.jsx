@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api/axios";
-// eslint-disable-next-line no-unused-vars
+
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 
-// Truncate to N words
+
 function truncateWords(text, maxWords = 20) {
   if (!text) return "";
   const words = text.trim().split(/\s+/);
@@ -19,6 +19,11 @@ export default function Portfolio() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+
+ 
+  useEffect(() => {
+    document.title = "Portfolio - GorkhaSoft";
+  }, []);
 
   useEffect(() => {
     fetchPortfolio();
@@ -68,14 +73,14 @@ export default function Portfolio() {
   return (
     <div className="min-h-screen bg-slate-50">
 
-      {/* HERO */}
+
       <section className="bg-gradient-to-r from-[#0f3b2c] to-[#1a5d4a] text-white py-20 text-center">
         <h1 className="text-5xl font-bold">My Portfolio</h1>
       </section>
 
       <div className="max-w-6xl mx-auto px-6 py-16">
 
-        {/* CATEGORY PILLS */}
+  
         <div className="flex justify-center mb-10">
           <LayoutGroup>
             <div className="relative flex gap-2 bg-gray-200 p-2 rounded-xl">
@@ -134,18 +139,18 @@ export default function Portfolio() {
                   )}
                 </div>
 
-                {/* Content — flex-grow to fill card */}
+             
                 <div className="p-5 flex flex-col flex-1">
                   <h2 className="text-lg font-bold mb-1 line-clamp-1">
                     {project.title}
                   </h2>
 
-                  {/* Truncated description — max 20 words */}
+                  
                   <p className="text-sm text-gray-500 flex-1">
                     {truncateWords(project.description, 10)}
                   </p>
 
-                  {/* Category tags */}
+              
                   <div className="mt-3 flex flex-wrap gap-1">
                     {project.categories?.map((cat, i) => (
                       <span
@@ -157,7 +162,7 @@ export default function Portfolio() {
                     ))}
                   </div>
 
-                  {/* Read More button */}
+               
                   <button
                     onClick={() => navigate(`/portfolio/${project.slug}`)}
                     className="mt-4 w-full py-2 rounded-lg bg-gradient-to-r from-[#0f3b2c] to-[#1a5d4a] text-white text-sm font-semibold hover:opacity-90 active:scale-95 transition-all duration-150"

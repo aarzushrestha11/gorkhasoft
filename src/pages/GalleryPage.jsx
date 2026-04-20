@@ -1,4 +1,4 @@
-/* eslint-disable no-unused-vars */
+
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -34,6 +34,41 @@ export default function GalleryPage() {
   const { albumId } = useParams();
   const [selectedSubAlbum, setSelectedSubAlbum] = useState(null);
   const { data: album, loading, error } = useFetchDetail(`/albums/${albumId}/`);
+
+  
+  useEffect(() => {
+  
+    const setSafeTitle = (title) => {
+      document.title = title;
+      console.log("Title set to:", title); 
+    };
+
+    if (loading) {
+      setSafeTitle("Loading Gallery - GorkhaSoft");
+      return;
+    }
+    
+    if (error || !album) {
+      setSafeTitle("Album Not Found - GorkhaSoft");
+      return;
+    }
+    
+
+    const albumName = album.name || "Gallery";
+    
+    if (!selectedSubAlbum) {
+      setSafeTitle(`${albumName} - Gallery - GorkhaSoft`);
+      return;
+    }
+    
+   
+    const currentSubAlbum = album.subalbums?.find(sa => sa.id === selectedSubAlbum);
+    if (currentSubAlbum && currentSubAlbum.name) {
+      setSafeTitle(`${currentSubAlbum.name} - ${albumName} - GorkhaSoft`);
+    } else {
+      setSafeTitle(`${albumName} - Gallery - GorkhaSoft`);
+    }
+  }, [loading, error, album, selectedSubAlbum]);
 
   useEffect(() => {
     if (selectedSubAlbum && album?.subalbums) {
@@ -78,7 +113,7 @@ export default function GalleryPage() {
     );
   }
 
-  // Show subalbums list
+  
   if (!selectedSubAlbum) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -103,7 +138,7 @@ export default function GalleryPage() {
           </div>
         </section>
 
-        {/* SubAlbums Grid */}
+    
         <AnimSection className="max-w-7xl mx-auto px-6 py-20">
           {!album.subalbums || album.subalbums.length === 0 ? (
             <div className="text-center py-20">
@@ -163,7 +198,6 @@ export default function GalleryPage() {
     );
   }
 
-  // Show images for selected subalbum
   const currentSubAlbum = album.subalbums?.find(sa => sa.id === selectedSubAlbum);
   
   return (

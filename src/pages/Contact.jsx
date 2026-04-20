@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import ReCAPTCHA from "react-google-recaptcha";
 import { motion } from "framer-motion";
@@ -14,6 +14,11 @@ import {
 
 export default function ContactForm() {
   const recaptchaRef = useRef(null);
+
+  // ✅ Set the browser tab title when this page loads
+  useEffect(() => {
+    document.title = "Contact - GorkhaSoft";
+  }, []);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -175,8 +180,22 @@ export default function ContactForm() {
           {/* LEFT */}
           <div>
             <h1 className="text-4xl font-bold text-green-800">
-              Let’s Talk 👋
+              Let's Talk 👋
             </h1>
+            <p className="text-gray-600 mt-4">
+              Have a project in mind? We'd love to hear from you. Send us a message and we'll respond as soon as possible.
+            </p>
+            
+            <div className="mt-8 space-y-4">
+              <div className="flex items-center gap-3 text-gray-600">
+                <Mail size={20} className="text-green-600" />
+                <span>info@gorkhasoft.com</span>
+              </div>
+              <div className="flex items-center gap-3 text-gray-600">
+                <Phone size={20} className="text-green-600" />
+                <span>+977 1234567890</span>
+              </div>
+            </div>
           </div>
 
           {/* FORM */}
