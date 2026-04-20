@@ -303,7 +303,6 @@ export default function ContactForm() {
                 />
               </div>
 
-              {/* CAPTCHA */}
               <div className="flex justify-start">
                 <ReCAPTCHA
                   ref={recaptchaRef}
