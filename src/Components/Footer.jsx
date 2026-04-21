@@ -9,6 +9,7 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import gslogo1 from "../assets/gslogo1.png"; // ✅ Import the logo
 
 const quickLinks = [
   { to: "/",          label: "Home"      },
@@ -70,9 +71,9 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <Link to="/" className="inline-flex items-center gap-2 mb-5 group">
-              <div className="w-9 h-9 rounded-xl bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/20 group-hover:scale-110 transition-transform duration-200">
+              <div className="w-9 h-9 rounded-xl bg-white flex items-center justify-center shadow-lg shadow-emerald-500/20 group-hover:scale-110 transition-transform duration-200">
                 <img
-                  src="/gslogo1.png"
+                  src={gslogo1}
                   alt="GorkhaSoft Logo"
                   className="w-6 h-6 object-contain"
                 />
@@ -149,7 +150,7 @@ export default function Footer() {
             <div className="space-y-3.5">
               {[
                 { Icon: MapPin, text: "Kathmandu, Nepal" },
-                { Icon: Phone, text: "+977 9800000000" },
+                { Icon: Phone, text: "+977 9767657196" },
                 { Icon: Mail, text: "info@gorkhasoft.com" },
               ].map(({ Icon, text }) => (
                 <div key={text} className="flex items-center gap-3 group">
