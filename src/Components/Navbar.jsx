@@ -49,15 +49,17 @@ export default function Navbar() {
           <img 
             src={gslogo1} 
             alt="GorkhaSoft Logo" 
-            className="w-8 h-8 rounded-lg object-cover group-hover:scale-110 transition-transform duration-200"
+            className={`w-15 h-12 rounded-lg object-cover transition-all duration-300 group-hover:scale-110 ${
+              scrolled ? "brightness-0 invert" : ""
+            }`}
           />
           <span
-            className={`font-bold text-xl tracking-tight transition-colors ${
+            className={`font-bold text-2xl pl-3 tracking-tight transition-colors ${
               scrolled ? "text-white" : "text-black"
             }`}
           >
             Gorkha<span className="text-emerald-400">Soft</span>
-          </span>
+          </span> 
         </Link>
 
         {/* Desktop links */}

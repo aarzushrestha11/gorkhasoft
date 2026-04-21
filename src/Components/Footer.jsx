@@ -11,8 +11,8 @@ import {
 import { Link } from "react-router-dom";
 
 const quickLinks = [
-  { to: "/", label: "Home" },
-  { to: "/services", label: "Services" },
+  { to: "/",          label: "Home"      },
+  { to: "/services",  label: "Services"  },
   { to: "/solutions", label: "Solutions" },
   { to: "/portfolio", label: "Portfolio" },
   { to: "/blog", label: "Blog" },

@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
+//eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
 import useFetchDetail from "../hooks/useFetchDetail";
 import GLightbox from 'glightbox';
@@ -210,7 +211,7 @@ export default function GalleryPage() {
             onClick={() => setSelectedSubAlbum(null)}
             className="inline-flex items-center gap-2 text-emerald-200 hover:text-white transition-colors mb-6 group"
           >
-            <span className="transform group-hover:-translate-x-1 transition-transform">←</span> Back to Sub-Albums
+            <span className="transform group-hover:-translate-x-1 transition-transform">←</span> Back to {album.name}
           </button>
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}

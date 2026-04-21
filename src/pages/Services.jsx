@@ -1,8 +1,7 @@
 
 import React, { useRef, useEffect } from "react";
+//eslint-disable-next-line no-unused-vars
 import { motion, useInView } from "framer-motion";
-
-
 import Code from "lucide-react/dist/esm/icons/code";
 import Globe from "lucide-react/dist/esm/icons/globe";
 import Smartphone from "lucide-react/dist/esm/icons/smartphone";
@@ -143,7 +142,6 @@ export default function Services() {
 
   return (
     <div className="bg-slate-50 text-gray-800">
-      <Navbar />
 
 
       <section className="bg-gradient-to-r from-[#0f3b2c] to-emerald-600 text-white py-24 text-center">
@@ -251,7 +249,6 @@ export default function Services() {
         </AnimSection>
       </section>
 
-      <Footer />
     </div>
   );
 }
