@@ -12,6 +12,8 @@ import {
   MessageSquare,
 } from "lucide-react";
 
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 export default function ContactForm() {
   const recaptchaRef = useRef(null);
 
@@ -142,7 +144,7 @@ export default function ContactForm() {
 
     try {
       await toast.promise(
-        axios.post("http://127.0.0.1:8000/api/contact/", {
+        axios.post(`${BASE_URL}/contact/`, {
           ...formData,
           captcha: captchaToken,
         }),
@@ -193,7 +195,7 @@ export default function ContactForm() {
               </div>
               <div className="flex items-center gap-3 text-gray-600">
                 <Phone size={20} className="text-green-600" />
-                <span>+977 1234567890</span>
+                <span>+977 9767657196</span>
               </div>
             </div>
           </div>

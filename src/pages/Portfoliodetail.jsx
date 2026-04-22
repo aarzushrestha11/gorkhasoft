@@ -114,9 +114,9 @@ export default function PortfolioDetail() {
           {project.description}
         </p>
 
-        {project.url && (
+        {project.link && (
           <a
-            href={project.url}
+            href={project.link}
             target="_blank"
             rel="noopener noreferrer"
             className="mt-8 inline-block px-6 py-3 bg-gradient-to-r from-[#0f3b2c] to-[#1a5d4a] text-white rounded-xl font-semibold hover:opacity-90 transition-opacity"
