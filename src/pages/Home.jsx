@@ -9,7 +9,7 @@ import Smartphone from "lucide-react/dist/esm/icons/smartphone";
 import BarChart from "lucide-react/dist/esm/icons/bar-chart";
 import Server from "lucide-react/dist/esm/icons/server";
 import Sparkles from "lucide-react/dist/esm/icons/sparkles";
-import Calendar from "lucide-react/dist/esm/icons/calendar";
+import CalendarIcon from "lucide-react/dist/esm/icons/calendar";
 import PenTool from "lucide-react/dist/esm/icons/pen-tool";
 import ExternalLink from "lucide-react/dist/esm/icons/external-link";
 import { Link } from "react-router-dom";
@@ -718,6 +718,146 @@ function ChairmanSection() {
   );
 }
 
+
+function CalendarSection() {
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(null);
+  
+  const getDaysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
+  const getFirstDayOfMonth = (year, month) => new Date(year, month, 1).getDay();
+  
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+  const daysInMonth = getDaysInMonth(year, month);
+  const startWeekday = getFirstDayOfMonth(year, month);
+  
+  const prevMonth = () => setCurrentDate(new Date(year, month - 1, 1));
+  const nextMonth = () => setCurrentDate(new Date(year, month + 1, 1));
+  
+  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  
+  const handleDateClick = (day) => {
+    const clicked = new Date(year, month, day);
+    setSelectedDate(clicked);
+  };
+  
+  const isToday = (day) => {
+    const today = new Date();
+    return today.getDate() === day && today.getMonth() === month && today.getFullYear() === year;
+  };
+  
+  const isSelected = (day) => {
+    return selectedDate && selectedDate.getDate() === day && selectedDate.getMonth() === month && selectedDate.getFullYear() === year;
+  };
+
+  return (
+    <section className="py-24 bg-[#f0f7f4]">
+      <div className="max-w-5xl mx-auto px-6">
+        <SectionHeading 
+          label="Stay Organized" 
+          title="Event" 
+          accent="Calendar" 
+          subtitle="Plan ahead with our interactive calendar — mark important dates and stay on track."
+        />
+        <AnimSection>
+          <div className="bg-white rounded-3xl shadow-xl border border-emerald-100 overflow-hidden transition-all hover:shadow-2xl">
+            {/* Calendar Header */}
+            <div className="bg-gradient-to-r from-emerald-700 to-teal-700 px-6 py-5 flex items-center justify-between text-white">
+              <button 
+                onClick={prevMonth} 
+                className="w-9 h-9 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-all hover:scale-105"
+              >
+                <i className="fas fa-chevron-left text-sm"></i>
+              </button>
+              <div className="flex items-center gap-3">
+                <CalendarIcon size={22} className="text-emerald-200" />
+                <h3 className="text-xl font-bold tracking-wide">{monthNames[month]} {year}</h3>
+              </div>
+              <button 
+                onClick={nextMonth} 
+                className="w-9 h-9 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-all hover:scale-105"
+              >
+                <i className="fas fa-chevron-right text-sm"></i>
+              </button>
+            </div>
+            
+            {/* Weekday Headers */}
+            <div className="grid grid-cols-7 gap-1 bg-emerald-50/40 px-4 pt-4 pb-2">
+              {weekDays.map(day => (
+                <div key={day} className="text-center text-xs font-semibold text-emerald-700 uppercase tracking-wider">
+                  {day}
+                </div>
+              ))}
+            </div>
+            
+            {/* Calendar Days Grid */}
+            <div className="grid grid-cols-7 gap-1 p-4 pt-2">
+              {/* Empty cells for days before month starts */}
+              {Array.from({ length: startWeekday }).map((_, idx) => (
+                <div key={`empty-${idx}`} className="h-12 rounded-xl bg-gray-50/30 text-center text-gray-300 text-sm flex items-center justify-center"></div>
+              ))}
+              
+              {/* Actual days of the month */}
+              {Array.from({ length: daysInMonth }).map((_, i) => {
+                const dayNum = i + 1;
+                return (
+                  <motion.button
+                    whileHover={{ scale: 1.02, y: -2 }}
+                    whileTap={{ scale: 0.98 }}
+                    key={dayNum}
+                    onClick={() => handleDateClick(dayNum)}
+                    className={`calendar-day h-12 rounded-xl text-sm font-medium transition-all duration-200 flex items-center justify-center shadow-sm ${
+                      isSelected(dayNum) 
+                        ? 'bg-emerald-600 text-white ring-2 ring-emerald-300 ring-offset-1' 
+                        : isToday(dayNum) 
+                          ? 'bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold' 
+                          : 'bg-white hover:bg-emerald-50 text-gray-700 border border-gray-100 hover:border-emerald-200'
+                    }`}
+                  >
+                    {dayNum}
+                  </motion.button>
+                );
+              })}
+            </div>
+            
+            {/* Selected Date Info Bar */}
+            <div className="border-t border-emerald-100 px-6 py-4 bg-gradient-to-r from-white to-emerald-50/30 flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
+                  <i className="fas fa-calendar-alt text-emerald-600 text-sm"></i>
+                </div>
+                <span className="text-sm text-gray-600">
+                  {selectedDate ? (
+                    <>Selected: <span className="font-semibold text-emerald-700">{selectedDate.toDateString()}</span></>
+                  ) : (
+                    <>No date selected. Tap any date above.</>
+                  )}
+                </span>
+              </div>
+              {selectedDate && (
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.9 }} 
+                  animate={{ opacity: 1, scale: 1 }} 
+                  className="flex gap-2"
+                >
+                  <span className="inline-flex items-center gap-1 text-xs bg-emerald-600/10 text-emerald-700 px-3 py-1.5 rounded-full">
+                    <i className="fas fa-check-circle text-emerald-500 text-[11px]"></i> Available
+                  </span>
+                </motion.div>
+              )}
+            </div>
+          </div>
+          <p className="text-center text-gray-400 text-xs mt-5 flex items-center justify-center gap-2">
+            <span className="w-2 h-2 bg-emerald-500 rounded-full"></span> 
+            Interactive calendar — plan your milestones with GorkhaSoft.
+          </p>
+        </AnimSection>
+      </div>
+    </section>
+  );
+}
+
 // ── Main export ───────────────────────────────────────────────────
 export default function Home() {
   useEffect(() => {
@@ -761,6 +901,9 @@ export default function Home() {
       />
 
       <ChairmanSection />
+
+      {/* Calendar Section - Added at the end */}
+      <CalendarSection />
     </div>
   );
 }
