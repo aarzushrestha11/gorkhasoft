@@ -900,7 +900,7 @@ export default function Home() {
         error={bError}
       />
 
-      <ChairmanSection />
+    
 
       {/* Calendar Section - Added at the end */}
       <CalendarSection />
