@@ -718,7 +718,7 @@ function ChairmanSection() {
   );
 }
 
-// ========== NEW CALENDAR SECTION ==========
+// ========== CALENDAR SECTION - UPDATED TO AUTO-SELECT TODAY'S DATE ==========
 function CalendarSection() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
@@ -751,6 +751,17 @@ function CalendarSection() {
     return selectedDate && selectedDate.getDate() === day && selectedDate.getMonth() === month && selectedDate.getFullYear() === year;
   };
 
+  // Auto-select today's date when component mounts or when month/year changes
+  useEffect(() => {
+    const today = new Date();
+    if (today.getMonth() === month && today.getFullYear() === year) {
+      setSelectedDate(today);
+    } else {
+      // If current month doesn't contain today, select the first day of the month
+      setSelectedDate(new Date(year, month, 1));
+    }
+  }, [year, month]);
+
   return (
     <section className="py-24 bg-[#f0f7f4]">
       <div className="max-w-5xl mx-auto px-6">
@@ -758,7 +769,7 @@ function CalendarSection() {
           label="Stay Organized" 
           title="Event" 
           accent="Calendar" 
-          subtitle="Plan ahead with our interactive calendar — mark important dates and stay on track."
+          subtitle="Plan ahead with our interactive calendar — today's date is automatically selected."
         />
         <AnimSection>
           <div className="bg-white rounded-3xl shadow-xl border border-emerald-100 overflow-hidden transition-all hover:shadow-2xl">
@@ -821,7 +832,7 @@ function CalendarSection() {
               })}
             </div>
             
-            {/* Selected Date Info Bar */}
+            {/* Selected Date Info Bar - now always shows a date (today's date by default) */}
             <div className="border-t border-emerald-100 px-6 py-4 bg-gradient-to-r from-white to-emerald-50/30 flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
@@ -831,7 +842,7 @@ function CalendarSection() {
                   {selectedDate ? (
                     <>Selected: <span className="font-semibold text-emerald-700">{selectedDate.toDateString()}</span></>
                   ) : (
-                    <>No date selected. Tap any date above.</>
+                    <>Loading calendar...</>
                   )}
                 </span>
               </div>
@@ -842,7 +853,8 @@ function CalendarSection() {
                   className="flex gap-2"
                 >
                   <span className="inline-flex items-center gap-1 text-xs bg-emerald-600/10 text-emerald-700 px-3 py-1.5 rounded-full">
-                    <i className="fas fa-check-circle text-emerald-500 text-[11px]"></i> Available
+                    <i className="fas fa-check-circle text-emerald-500 text-[11px]"></i> 
+                    {isToday(selectedDate.getDate()) ? "Today's Date" : "Selected"}
                   </span>
                 </motion.div>
               )}
@@ -850,7 +862,7 @@ function CalendarSection() {
           </div>
           <p className="text-center text-gray-400 text-xs mt-5 flex items-center justify-center gap-2">
             <span className="w-2 h-2 bg-emerald-500 rounded-full"></span> 
-            Interactive calendar — plan your milestones with GorkhaSoft.
+            Interactive calendar — today's date is automatically highlighted and selected.
           </p>
         </AnimSection>
       </div>
@@ -900,9 +912,9 @@ export default function Home() {
         error={bError}
       />
 
-    
+     
 
-      {/* Calendar Section - Added at the end */}
+      {/* Calendar Section - Now auto-selects today's date */}
       <CalendarSection />
     </div>
   );
