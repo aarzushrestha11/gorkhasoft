@@ -169,10 +169,15 @@ const PROCEDURES = [
 
 const techItems = [
   { icon: "fa-brands fa-react", name: "React.js", desc: "Frontend ecosystem", color: "#61DAFB" },
+  { icon: "fa-brands fa-vuejs", name: "Vue.js", desc: "Reactive UIs", color: "#42B883" },
+  { icon: "fa-brands fa-angular", name: "Angular", desc: "Enterprise ready", color: "#DD0031" },
   { icon: "fa-brands fa-python", name: "Python", desc: "Django, FastAPI", color: "#3776AB" },
   { icon: "fa-brands fa-node-js", name: "Node.js", desc: "Backend JS", color: "#339933" },
+  { icon: "fa-brands fa-laravel", name: "Laravel", desc: "PHP artisan", color: "#FF2D20" },
+  { icon: "fa-brands fa-java", name: "Java", desc: "Spring Boot", color: "#007396" },
   { icon: "fa-brands fa-js", name: "JavaScript", desc: "Core language", color: "#F7DF1E" },
   { icon: "fa-brands fa-php", name: "PHP", desc: "Server-side scripting", color: "#777BB4" },
+  { icon: "fa-brands fa-golang", name: "Go", desc: "High performance", color: "#00ADD8" },
   { icon: "fa-solid fa-cloud", name: "AWS Cloud", desc: "Scalable infra", color: "#FF9900" },
   { icon: "fa-solid fa-database", name: "PostgreSQL", desc: "Reliable DB", color: "#4169E1" },
   { icon: "fa-brands fa-figma", name: "Figma", desc: "UI/UX design", color: "#F24E1E" },
@@ -713,7 +718,7 @@ function ChairmanSection() {
   );
 }
 
-
+// ========== NEW CALENDAR SECTION ==========
 function CalendarSection() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
@@ -895,7 +900,10 @@ export default function Home() {
         error={bError}
       />
 
-      {/* <ChairmanSection /> */}
+      <ChairmanSection />
+
+      {/* Calendar Section - Added at the end */}
+      <CalendarSection />
     </div>
   );
 }
