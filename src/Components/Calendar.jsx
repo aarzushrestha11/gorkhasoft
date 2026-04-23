@@ -1,72 +1,99 @@
 import React, { useState, useEffect } from "react";
-//eslint-disable-next-line no-unused-vars
+// eslint-disable-next-line
 import { motion } from "framer-motion";
 import CalendarIcon from "lucide-react/dist/esm/icons/calendar";
+import NepaliDate from "nepali-date-converter";
 import useFetch from "../hooks/useFetch";
 
 const COLOR_STYLES = {
-  red:    { badge: "bg-red-100 text-red-700",       day: "bg-red-600 text-black border-red-500" },
-  yellow: { badge: "bg-yellow-100 text-yellow-700", day: "bg-yellow-500 text-black border-yellow-400" },
-  blue:   { badge: "bg-blue-100 text-blue-700",     day: "bg-blue-500 text-black border-blue-500" },
+  red: {
+    badge: "bg-red-100 text-red-700",
+    day: "bg-red-600 text-black border-red-500",
+  },
+  yellow: {
+    badge: "bg-yellow-100 text-yellow-700",
+    day: "bg-yellow-500 text-black border-yellow-400",
+  },
+  blue: {
+    badge: "bg-blue-100 text-blue-700",
+    day: "bg-blue-500 text-black border-blue-500",
+  },
 };
 
-// When a day has multiple event colours, this determines which wins
 const PRIORITY = ["red", "blue", "yellow"];
+const getDayColor = (colors) =>
+  PRIORITY.find((c) => colors.includes(c)) ?? null;
 
-const getDayColor = (colors) => PRIORITY.find((c) => colors.includes(c)) ?? null;
-
-//eslint-disable-next-line no-unused-vars
+// eslint-disable-next-line
 export default function EventCalendar({ SectionHeading, AnimSection }) {
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState(null);
+  const [currentDate, setCurrentDate] = useState(() => new NepaliDate());
+  const [selectedDate, setSelectedDate] = useState(() => new NepaliDate());
 
-  const year  = currentDate.getFullYear();
+  const year  = currentDate.getYear();
   const month = currentDate.getMonth();
 
-  const daysInMonth  = new Date(year, month + 1, 0).getDate();
-  const startWeekday = new Date(year, month, 1).getDay();
+  // ── Fix: construct with (y, m, d) not a NepaliDate object ──────────────────
+  const getDaysInMonth = (y, m) => {
+    let days = 0;
+    const temp = new NepaliDate(y, m, 1);
+    while (temp.getMonth() === m) {
+      days++;
+      temp.setDate(temp.getDate() + 1);
+    }
+    return days;
+  };
+
+  const daysInMonth  = getDaysInMonth(year, month);
+  const startWeekday = new NepaliDate(year, month, 1).getDay();
 
   const monthNames = [
-    "January","February","March","April","May","June",
-    "July","August","September","October","November","December",
+    "Baisakh","Jestha","Ashadh","Shrawan","Bhadra","Ashwin",
+    "Kartik","Mangsir","Poush","Magh","Falgun","Chaitra",
   ];
 
   const weekDays = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 
-  const { data: rawEvents, loading, error } = useFetch("events");
+  const { data: rawEvents = [], loading, error } = useFetch("events");
 
-  // Group by date: { "YYYY-MM-DD": [event, ...] }
-  const events = rawEvents.reduce((acc, ev) => {
-    if (!acc[ev.date]) acc[ev.date] = [];
-    acc[ev.date].push(ev);
-    return acc;
-  }, {});
+  const events = Array.isArray(rawEvents)
+    ? rawEvents.reduce((acc, ev) => {
+        if (!acc[ev.date]) acc[ev.date] = [];
+        acc[ev.date].push(ev);
+        return acc;
+      }, {})
+    : {};
+
+  // BS → AD ISO string key
+  const formatKey = (bsDate) =>
+    bsDate.toJsDate().toISOString().split("T")[0];
 
   useEffect(() => {
-    const today = new Date();
-    if (today.getMonth() === month && today.getFullYear() === year) {
+    const today = new NepaliDate();
+    if (today.getMonth() === month && today.getYear() === year) {
       setSelectedDate(today);
     } else {
-      setSelectedDate(new Date(year, month, 1));
+      setSelectedDate(new NepaliDate(year, month, 1));
     }
-  }, [year, month]);
+  }, [month, year]);
 
-  const formatKey = (y, m, d) =>
-    `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
-
-  const isToday = (d) => {
-    const t = new Date();
-    return t.getDate() === d && t.getMonth() === month && t.getFullYear() === year;
+  const isToday = (day) => {
+    const today = new NepaliDate();
+    return (
+      today.getDate()  === day   &&
+      today.getMonth() === month &&
+      today.getYear()  === year
+    );
   };
 
-  const isSelected = (d) =>
+  const isSelected = (day) =>
     selectedDate &&
-    selectedDate.getDate() === d &&
+    selectedDate.getDate()  === day   &&
     selectedDate.getMonth() === month &&
-    selectedDate.getFullYear() === year;
+    selectedDate.getYear()  === year;
 
-  const colorsForDay = (d) => {
-    const evs = events[formatKey(year, month, d)] || [];
+  const colorsForDay = (day) => {
+    const key = formatKey(new NepaliDate(year, month, day));
+    const evs = events[key] || [];
     return [...new Set(evs.map((e) => e.color))];
   };
 
@@ -74,28 +101,32 @@ export default function EventCalendar({ SectionHeading, AnimSection }) {
     const colors     = colorsForDay(day);
     const eventColor = getDayColor(colors);
 
-    // ── Event day — colour takes full priority, even when selected ──
     if (eventColor) {
-      const selected = isSelected(day) ? "ring-2 ring-offset-1 ring-gray-700" : "";
-      return `${COLOR_STYLES[eventColor].day} ${selected}`;
+      const ring = isSelected(day) ? "ring-2 ring-offset-1 ring-gray-700" : "";
+      return `${COLOR_STYLES[eventColor].day} ${ring}`;
     }
 
-    // ── Normal days ──
     if (isSelected(day)) return "bg-emerald-600 text-white border-emerald-600";
     if (isToday(day))    return "bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold";
     if (isSat)           return "text-red-500 bg-white border";
     return "text-gray-700 bg-white border";
   };
 
-  const selectedKey =
-    selectedDate &&
-    formatKey(
-      selectedDate.getFullYear(),
-      selectedDate.getMonth(),
-      selectedDate.getDate()
-    );
+  const selectedKey    = selectedDate ? formatKey(selectedDate) : null;
+  const selectedEvents = selectedKey  ? (events[selectedKey] || []) : [];
 
-  const selectedEvents = selectedKey ? (events[selectedKey] || []) : [];
+  // ── Fix: manually track year rollover instead of setMonth(-1) ──────────────
+  const prevMonth = () => {
+    const newMonth = month === 0 ? 11 : month - 1;
+    const newYear  = month === 0 ? year - 1 : year;
+    setCurrentDate(new NepaliDate(newYear, newMonth, 1));
+  };
+
+  const nextMonth = () => {
+    const newMonth = month === 11 ? 0  : month + 1;
+    const newYear  = month === 11 ? year + 1 : year;
+    setCurrentDate(new NepaliDate(newYear, newMonth, 1));
+  };
 
   return (
     <section className="py-24 bg-[#f0f7f4]">
@@ -105,7 +136,7 @@ export default function EventCalendar({ SectionHeading, AnimSection }) {
           label="Stay Organized"
           title="Event"
           accent="Calendar"
-          subtitle="Plan ahead with our interactive calendar — today's date is automatically selected."
+          subtitle="Nepali (Bikram Sambat) calendar with events"
         />
 
         <AnimSection>
@@ -114,8 +145,8 @@ export default function EventCalendar({ SectionHeading, AnimSection }) {
             {/* Header */}
             <div className="bg-gradient-to-r from-emerald-700 to-teal-700 px-6 py-5 flex justify-between text-white">
               <button
-                onClick={() => setCurrentDate(new Date(year, month - 1, 1))}
-                className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center"
+                onClick={prevMonth}
+                className="w-9 h-9 bg-white/20 rounded-full flex items-center justify-center"
               >
                 <i className="fas fa-chevron-left text-sm"></i>
               </button>
@@ -131,8 +162,8 @@ export default function EventCalendar({ SectionHeading, AnimSection }) {
               </div>
 
               <button
-                onClick={() => setCurrentDate(new Date(year, month + 1, 1))}
-                className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center"
+                onClick={nextMonth}
+                className="w-9 h-9 bg-white/20 rounded-full flex items-center justify-center"
               >
                 <i className="fas fa-chevron-right text-sm"></i>
               </button>
@@ -143,8 +174,9 @@ export default function EventCalendar({ SectionHeading, AnimSection }) {
               {weekDays.map((d, i) => (
                 <div
                   key={d}
-                  className={`text-center text-xs font-semibold uppercase
-                    ${i === 6 ? "text-red-500" : "text-emerald-700"}`}
+                  className={`text-center text-xs font-semibold uppercase ${
+                    i === 6 ? "text-red-500" : "text-emerald-700"
+                  }`}
                 >
                   {d}
                 </div>
@@ -165,10 +197,9 @@ export default function EventCalendar({ SectionHeading, AnimSection }) {
                 return (
                   <motion.button
                     key={day}
-                    onClick={() => setSelectedDate(new Date(year, month, day))}
+                    onClick={() => setSelectedDate(new NepaliDate(year, month, day))}
                     whileHover={{ scale: 1.02 }}
-                    className={`h-12 rounded-xl text-sm font-semibold flex items-center justify-center transition-all
-                      ${getDayClassName(day, isSat)}`}
+                    className={`h-12 rounded-xl text-sm font-semibold flex items-center justify-center transition-all ${getDayClassName(day, isSat)}`}
                   >
                     {day}
                   </motion.button>
@@ -181,7 +212,7 @@ export default function EventCalendar({ SectionHeading, AnimSection }) {
               <p className="text-sm text-gray-600 mb-2">
                 Selected:{" "}
                 <span className="font-semibold text-emerald-700">
-                  {selectedDate?.toDateString()}
+                  {selectedDate?.format("YYYY-MM-DD")} BS
                 </span>
               </p>
 
@@ -192,8 +223,9 @@ export default function EventCalendar({ SectionHeading, AnimSection }) {
                   {selectedEvents.map((ev) => (
                     <span
                       key={ev.id}
-                      className={`text-xs px-3 py-1 rounded-full font-medium
-                        ${COLOR_STYLES[ev.color]?.badge ?? "bg-gray-100 text-gray-600"}`}
+                      className={`text-xs px-3 py-1 rounded-full font-medium ${
+                        COLOR_STYLES[ev.color]?.badge ?? "bg-gray-100 text-gray-600"
+                      }`}
                     >
                       {ev.title}
                     </span>
