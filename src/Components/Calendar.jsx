@@ -134,9 +134,8 @@ export default function EventCalendar({ SectionHeading, AnimSection }) {
 
         <SectionHeading
           label="Stay Organized"
-          title="Event"
+          title="Office"
           accent="Calendar"
-          subtitle="Nepali (Bikram Sambat) calendar with events"
         />
 
         <AnimSection>
