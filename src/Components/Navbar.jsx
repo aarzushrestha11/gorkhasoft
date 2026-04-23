@@ -6,17 +6,17 @@ import { motion, AnimatePresence } from "framer-motion";
 import gslogo1 from "../assets/gslogo1.png"; // ✅ Import the logo
 
 const links = [
-  { to: "/",          label: "Home"      },
-  { to: "/services",  label: "Services"  },
+  { to: "/", label: "Home" },
+  { to: "/services", label: "Services" },
   // { to: "/solutions", label: "Solutions" },
-  { to: "/gallery",   label: "Gallery"   },
+  { to: "/gallery", label: "Gallery" },
   { to: "/portfolio", label: "Portfolio" },
-  { to: "/blog",      label: "Blog"      },
-  { to: "/contact",   label: "Contact"   },
+  { to: "/blog", label: "Blog" },
+  { to: "/contact", label: "Contact" },
 ];
 
 export default function Navbar() {
-  const [open,     setOpen]     = useState(false);
+  const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
 
@@ -26,11 +26,9 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  
   const isActive = (to) =>
     to === "/" ? location.pathname === "/" : location.pathname.startsWith(to);
 
- 
   return (
     <motion.nav
       initial={{ y: -80, opacity: 0 }}
@@ -44,11 +42,11 @@ export default function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
 
-        {/* LOGO with Image */}
+        {/* LOGO */}
         <Link to="/" className="flex items-center gap-2 group">
-          <img 
-            src={gslogo1} 
-            alt="GorkhaSoft Logo" 
+          <img
+            src={gslogo1}
+            alt="GorkhaSoft Logo"
             className={`w-15 h-12 rounded-lg object-cover transition-all duration-300 group-hover:scale-110 ${
               scrolled ? "brightness-0 invert" : ""
             }`}
@@ -59,40 +57,41 @@ export default function Navbar() {
             }`}
           >
             Gorkha<span className="text-emerald-400">Soft</span>
-          </span> 
+          </span>
         </Link>
 
         {/* Desktop links */}
         <div className="hidden md:flex items-center gap-1">
-         {links.map((l) => (
-          <Link
-            key={l.to}
-            to={l.to}
-            onClick={() => setOpen(false)} // optional for desktop
-            className={`relative px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200 ${
-              isActive(l.to)
-                ? "text-emerald-400"
-                : scrolled
-                ? "text-white/80 hover:text-white hover:bg-white/5"
-                : "text-black/80 hover:text-black hover:bg-black/5"
-            }`}
-          >
-            {isActive(l.to) && (
-              <motion.span
-                layoutId="nav-pill"
-                className="absolute inset-0 bg-emerald-500/10 rounded-lg border border-emerald-500/20"
-              />
-            )}
-            <span className="relative">{l.label}</span>
-          </Link>
-        ))}
+          {links.map((l) => (
+            <Link
+              key={l.to}
+              to={l.to}
+              className={`relative px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200 ${
+                isActive(l.to)
+                  ? "text-emerald-400"
+                  : scrolled
+                  ? "text-white/80 hover:text-white hover:bg-white/5"
+                  : "text-black/80 hover:text-black hover:bg-black/5"
+              }`}
+            >
+              {isActive(l.to) && (
+                <motion.span
+                  layoutId="nav-pill"
+                  className="absolute inset-0 bg-emerald-500/10 rounded-lg border border-emerald-500/20"
+                />
+              )}
+              <span className="relative">{l.label}</span>
+            </Link>
+          ))}
         </div>
-
-    
 
         {/* Mobile toggle */}
         <button
-          className="md:hidden text-white p-2 rounded-lg hover:bg-white/10 transition-colors"
+          className={`md:hidden p-2 rounded-lg transition-colors ${
+            scrolled
+              ? "text-white hover:bg-white/10"
+              : "text-black hover:bg-black/10"
+          }`}
           onClick={() => setOpen(!open)}
         >
           {open ? <X size={24} /> : <Menu size={24} />}
@@ -105,7 +104,7 @@ export default function Navbar() {
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
-            exit={{   opacity: 0, height: 0 }}
+            exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
             className="md:hidden overflow-hidden bg-[#0a2318]/98 backdrop-blur-xl border-t border-white/10"
           >
@@ -130,6 +129,7 @@ export default function Navbar() {
                   </Link>
                 </motion.div>
               ))}
+
               <motion.div
                 initial={{ opacity: 0, x: -16 }}
                 animate={{ opacity: 1, x: 0 }}
