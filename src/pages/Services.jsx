@@ -11,8 +11,6 @@ import Database from "lucide-react/dist/esm/icons/database";
 import ArrowRight from "lucide-react/dist/esm/icons/arrow-right";
 import CheckCircle from "lucide-react/dist/esm/icons/check-circle";
 
-import Navbar from "../Components/Navbar";
-import Footer from "../Components/Footer";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
