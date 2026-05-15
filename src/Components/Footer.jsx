@@ -141,34 +141,66 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Contact */}
-          <div>
-            <h4 className="text-white font-semibold mb-5 text-xs uppercase tracking-widest">
-              Contact
-            </h4>
+        
+                  {/* Contact + Working Hours */}
+        <div>
+          <h4 className="text-white font-semibold mb-5 text-xs uppercase tracking-widest">
+            Contact
+          </h4>
 
-            <div className="space-y-3.5">
-              {[
-                { Icon: MapPin, text: "Kathmandu, Nepal" },
-                { Icon: Phone, text: "+977 9767657196" },
-                { Icon: Mail, text: "info@gorkhasoft.com" },
-              ].map(({ Icon, text }) => (
-                <div key={text} className="flex items-center gap-3 group">
-                  <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-shrink-0 group-hover:bg-emerald-500/20 transition-colors">
-                    <Icon size={13} className="text-emerald-400" />
-                  </div>
-                  <span className="text-sm text-slate-400">{text}</span>
+          <div className="space-y-3.5">
+            {[
+              { Icon: MapPin, text: "Kathmandu, Nepal" },
+              { Icon: Phone, text: "+977-9767657196" },
+              { Icon: Mail, text: "info@gorkhasoft.com" },
+            ].map(({ Icon, text }) => (
+              <div key={text} className="flex items-center gap-3 group">
+                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-shrink-0 group-hover:bg-emerald-500/20 transition-colors">
+                  <Icon size={13} className="text-emerald-400" />
                 </div>
-              ))}
-            </div>
+                <span className="text-sm text-slate-400">{text}</span>
+              </div>
+            ))}
 
-            <Link
-              to="/contact"
-              className="mt-6 inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-lg shadow-emerald-500/20 transition-all duration-200 hover:-translate-y-0.5"
-            >
-              Get in Touch <ArrowUpRight size={13} />
-            </Link>
+            {/* Working Hours */}
+            <div className="mt-5 pt-4 border-t border-white/10">
+              <h5 className="text-xs uppercase tracking-widest text-white mb-3">
+                Working Hours
+              </h5>
+
+              <div className="flex items-center gap-3 group">
+                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-shrink-0 group-hover:bg-emerald-500/20 transition-colors">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-3.5 h-3.5 text-emerald-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                </div>
+
+                <div className="text-sm text-slate-400 leading-tight">
+                  <p>Sunday - Friday</p>
+                  <p className="text-emerald-400 font-medium">9:00 AM – 4:00 PM</p>
+                </div>
+              </div>
+            </div>
           </div>
+
+          <Link
+            to="/contact"
+            className="mt-6 inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-lg shadow-emerald-500/20 transition-all duration-200 hover:-translate-y-0.5"
+          >
+            Get in Touch <ArrowUpRight size={13} />
+          </Link>
+        </div>
         </div>
 
         {/* Bottom */}
